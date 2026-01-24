@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EGIPRON RFI Sensor Planner v5.0 - Import/Export Enabled</title>
+    <title>EGIPRON RFI Sensor Planner v5.1 - Enhanced Layout</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
@@ -139,14 +139,12 @@
             color: #4c6ef5;
         }
         
-        /* Search Bar */
+        /* Search Bar - Now in Top Right */
         #searchContainer {
             position: absolute;
             top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 500px;
+            right: 20px;
+            width: 320px;
             z-index: 1000;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
@@ -154,11 +152,13 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(76, 110, 245, 0.3);
+            display: flex;
+            gap: 10px;
         }
         
         #searchBox {
-            width: 100%;
-            padding: 12px 45px 12px 15px;
+            flex: 1;
+            padding: 12px 15px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             font-size: 14px;
@@ -171,20 +171,23 @@
         }
         
         #searchButton {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
             background: #4c6ef5;
             color: white;
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 45px;
+            height: 45px;
             border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        
+        #searchButton:hover {
+            background: #3b5bdb;
+            transform: translateY(-2px);
         }
         
         /* Map Controls */
@@ -446,6 +449,16 @@
             box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
         }
         
+        .button-info {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white;
+        }
+        
+        .button-info:hover {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        }
+        
         /* Active Placement Mode */
         .placement-mode {
             background: linear-gradient(135deg, #f59e0b, #d97706) !important;
@@ -461,7 +474,7 @@
         /* Sensor Counter */
         .sensor-counter {
             position: absolute;
-            top: 20px;
+            top: 90px;
             right: 20px;
             background: rgba(30, 41, 59, 0.95);
             color: white;
@@ -473,13 +486,16 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        /* Legend */
+        /* Legend - Now on Right Side */
         #legend {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            top: 140px;
+            right: 20px;
             background: rgba(255, 255, 255, 0.95);
             padding: 15px;
             border-radius: 10px;
@@ -489,10 +505,12 @@
             border: 1px solid rgba(76, 110, 245, 0.3);
             backdrop-filter: blur(10px);
             transition: transform 0.3s ease;
+            width: 200px;
         }
         
         #legend.hidden {
-            transform: translateX(-120%);
+            transform: translateX(120%);
+            opacity: 0;
         }
         
         .legend-title {
@@ -507,15 +525,20 @@
         }
         
         .legend-close {
-            color: #ef4444;
+            color: #64748b;
             cursor: pointer;
             font-size: 14px;
+            transition: color 0.2s;
+        }
+        
+        .legend-close:hover {
+            color: #ef4444;
         }
         
         .legend-item {
             display: flex;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
         
         .legend-color {
@@ -525,6 +548,7 @@
             margin-right: 8px;
             border: 2px solid white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
         
         .legend-line {
@@ -532,6 +556,12 @@
             height: 3px;
             margin-right: 8px;
             border-radius: 2px;
+            flex-shrink: 0;
+        }
+        
+        .legend-text {
+            font-size: 11px;
+            color: #475569;
         }
         
         /* Responsive Design */
@@ -548,12 +578,13 @@
             
             #searchContainer {
                 top: 80px;
+                right: 20px;
                 width: calc(100% - 40px);
             }
             
             .sensor-counter {
-                top: 15px;
-                right: 15px;
+                top: 150px;
+                right: 20px;
                 font-size: 12px;
                 padding: 8px 12px;
             }
@@ -565,7 +596,8 @@
             
             #legend {
                 width: calc(100% - 40px);
-                left: 20px;
+                right: 20px;
+                top: 200px;
             }
             
             h1 {
@@ -593,6 +625,14 @@
             }
             
             .form-value {
+                width: 100%;
+            }
+            
+            #searchContainer {
+                flex-direction: column;
+            }
+            
+            #searchButton {
                 width: 100%;
             }
         }
@@ -867,6 +907,77 @@
             border-left: 3px solid #ef4444;
             display: block;
         }
+        
+        /* Toggle Sensors Visibility Button */
+        .toggle-sensors-btn {
+            position: absolute;
+            top: 140px;
+            right: 240px; /* Next to legend */
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(76, 110, 245, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            width: 50px;
+            height: 50px;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .toggle-sensors-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.25);
+        }
+        
+        .toggle-sensors-btn i {
+            font-size: 20px;
+            color: #475569;
+        }
+        
+        .toggle-sensors-btn span {
+            font-size: 9px;
+            color: #64748b;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .toggle-sensors-btn {
+                top: 200px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+        
+        /* Hidden sensors state */
+        .sensor-hidden .sensor-marker,
+        .sensor-hidden .sensor-coverage {
+            opacity: 0.3 !important;
+        }
+        
+        /* Quick Coordinates Search (Optional) */
+        #quickCoords {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(76, 110, 245, 0.3);
+            display: none; /* Hidden by default */
+        }
     </style>
 </head>
 <body>
@@ -877,12 +988,18 @@
         <i class="fas fa-bars"></i>
     </div>
     
-    <!-- Search Bar -->
+    <!-- Search Bar - Now in Top Right -->
     <div id="searchContainer">
-        <input type="text" id="searchBox" placeholder="Search for a city or location...">
+        <input type="text" id="searchBox" placeholder="Search city, address, or coordinates...">
         <button id="searchButton">
             <i class="fas fa-search"></i>
         </button>
+    </div>
+    
+    <!-- Toggle Sensors Visibility Button -->
+    <div class="toggle-sensors-btn" id="toggleSensorsBtn" title="Toggle Sensors Visibility">
+        <i class="fas fa-eye"></i>
+        <span>Hide</span>
     </div>
     
     <!-- Placement Instruction -->
@@ -899,10 +1016,10 @@
         
         <h1>
             <i class="fas fa-satellite-dish"></i>
-            RFI Sensor Planner v5.0
+            RFI Sensor Planner v5.1
         </h1>
         <div class="subtitle">
-            Place, configure, and analyze RFI sensor coverage with full import/export capability
+            Place, configure, and analyze RFI sensor coverage with enhanced layout
         </div>
         
         <!-- Quick Actions -->
@@ -919,7 +1036,7 @@
             <h2><i class="fas fa-microchip"></i> Sensor Type for New Sensors</h2>
             <div class="sensor-selector">
                 <div class="sensor-btn qb100 active" data-type="qb100">
-                    <div class="ensor-icon"><i class="fas fa-satellite"></i></div>
+                    <div class="sensor-icon"><i class="fas fa-satellite"></i></div>
                     <div>QB100</div>
                     <div class="sensitivity-badge">-125 dBm</div>
                 </div>
@@ -998,6 +1115,9 @@
         </div>
         
         <div class="quick-actions">
+            <button id="hideSensorsBtn" class="button-info">
+                <i class="fas fa-eye-slash"></i> Hide All Sensors
+            </button>
             <button id="clearBtn" class="button-danger">
                 <i class="fas fa-trash"></i> Clear All
             </button>
@@ -1028,10 +1148,10 @@
     
     <!-- Sensor Counter -->
     <div class="sensor-counter">
-        <i class="fas fa-satellite-dish"></i> <span id="sensorCount">0</span>
+        <i class="fas fa-satellite-dish"></i> <span id="sensorCount">0</span> Sensors
     </div>
     
-    <!-- Legend -->
+    <!-- Legend - Now on Right Side -->
     <div id="legend">
         <div class="legend-title">
             <span><i class="fas fa-map-signs"></i> Legend</span>
@@ -1041,27 +1161,27 @@
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #4299e1;"></div>
-            <span>QB100 Sensor</span>
+            <span class="legend-text">QB100 Sensor</span>
         </div>
         <div class="legend-item">
             <div class="legend-line" style="background: rgba(66, 153, 225, 0.3);"></div>
-            <span>QB100 Coverage</span>
+            <span class="legend-text">QB100 Coverage</span>
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #38a169;"></div>
-            <span>QB010 Sensor</span>
+            <span class="legend-text">QB010 Sensor</span>
         </div>
         <div class="legend-item">
             <div class="legend-line" style="background: rgba(56, 161, 105, 0.3);"></div>
-            <span>QB010 Coverage</span>
+            <span class="legend-text">QB010 Coverage</span>
         </div>
         <div class="legend-item">
             <div class="legend-color" style="background: #ed8936;"></div>
-            <span>Smartphone Sensor</span>
+            <span class="legend-text">Smartphone Sensor</span>
         </div>
         <div class="legend-item">
             <div class="legend-line" style="background: rgba(237, 137, 54, 0.3);"></div>
-            <span>Smartphone Coverage</span>
+            <span class="legend-text">Smartphone Coverage</span>
         </div>
     </div>
     
@@ -1204,6 +1324,7 @@
         let isAddingSensor = false;
         let sensorBeingEdited = null;
         let importFileData = null;
+        let sensorsHidden = false;
         
         // DOM Elements
         const mobileToggle = document.getElementById('mobileToggle');
@@ -1225,6 +1346,8 @@
         const importFileInput = document.getElementById('importFile');
         const importBtn = document.getElementById('importBtn');
         const importStatus = document.getElementById('importStatus');
+        const toggleSensorsBtn = document.getElementById('toggleSensorsBtn');
+        const hideSensorsBtn = document.getElementById('hideSensorsBtn');
         
         // Modal elements
         const editModal = document.getElementById('editModal');
@@ -1253,6 +1376,7 @@
         setupEditFormListeners();
         addDemoSensors();
         checkMobile();
+        hideDefaultGeocoder();
         
         // Event Listeners
         function setupEventListeners() {
@@ -1310,6 +1434,10 @@
             // Import functionality
             importFileInput.addEventListener('change', handleFileSelect);
             importBtn.addEventListener('click', importPlan);
+            
+            // Toggle sensors visibility
+            toggleSensorsBtn.addEventListener('click', toggleSensorsVisibility);
+            hideSensorsBtn.addEventListener('click', toggleSensorsVisibility);
             
             // Modal buttons
             closeModal.addEventListener('click', () => editModal.classList.remove('active'));
@@ -1370,9 +1498,12 @@
         }
         
         function setupGeocoder() {
-            // Using built-in geocoder
+            // Using built-in geocoder for advanced search capabilities
             L.Control.geocoder({
-                defaultMarkGeocode: false
+                defaultMarkGeocode: false,
+                collapsed: false,
+                placeholder: "Search location...",
+                errorMessage: "Nothing found."
             })
             .on('markgeocode', function(e) {
                 const latlng = e.geocode.center;
@@ -1385,10 +1516,13 @@
                     .openPopup();
             })
             .addTo(map);
-            
-            // Hide default geocoder control on mobile
-            if (window.innerWidth < 768) {
-                document.querySelector('.leaflet-control-geocoder').style.display = 'none';
+        }
+        
+        function hideDefaultGeocoder() {
+            // Hide the default Leaflet geocoder control since we have our own
+            const geocoderControl = document.querySelector('.leaflet-control-geocoder');
+            if (geocoderControl) {
+                geocoderControl.style.display = 'none';
             }
         }
         
@@ -1458,10 +1592,33 @@
             const query = searchBox.value.trim();
             if (!query) return;
             
+            // Check if query is coordinates (e.g., "51.5074, -0.1278" or "51.5074 -0.1278")
+            const coordMatch = query.match(/(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)/);
+            
+            if (coordMatch) {
+                const lat = parseFloat(coordMatch[1]);
+                const lng = parseFloat(coordMatch[2]);
+                
+                if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                    alert("Invalid coordinates. Please use format: lat, lng (e.g., 51.5074, -0.1278)");
+                    return;
+                }
+                
+                map.setView([lat, lng], 12);
+                
+                // Add marker
+                L.marker([lat, lng])
+                    .addTo(map)
+                    .bindPopup(`<b>Coordinates</b><br>${lat.toFixed(6)}°, ${lng.toFixed(6)}°`)
+                    .openPopup();
+                
+                return;
+            }
+            
             showLoading("Searching...");
             
             // Use Nominatim (OpenStreetMap's geocoding service)
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.length > 0) {
@@ -1479,13 +1636,52 @@
                         hideLoading();
                     } else {
                         hideLoading();
-                        alert("Location not found. Try a different search term.");
+                        alert("Location not found. Try a different search term or use coordinates (lat, lng).");
                     }
                 })
                 .catch(error => {
                     hideLoading();
                     alert("Search error: " + error.message);
                 });
+        }
+        
+        // Toggle Sensors Visibility
+        function toggleSensorsVisibility() {
+            sensorsHidden = !sensorsHidden;
+            
+            if (sensorsHidden) {
+                // Hide all sensors
+                sensors.forEach(sensor => {
+                    sensor.marker.setOpacity(0.3);
+                    sensor.circle.setOpacity(0.1);
+                    sensor.marker.setStyle({ opacity: 0.3 });
+                    sensor.marker.getElement().classList.add('sensor-hidden');
+                    sensor.circle.getElement().classList.add('sensor-hidden');
+                });
+                
+                // Update button states
+                toggleSensorsBtn.innerHTML = '<i class="fas fa-eye-slash"></i><span>Show</span>';
+                toggleSensorsBtn.title = "Show Sensors";
+                hideSensorsBtn.innerHTML = '<i class="fas fa-eye"></i> Show All Sensors';
+                hideSensorsBtn.classList.remove('button-info');
+                hideSensorsBtn.classList.add('button-success');
+            } else {
+                // Show all sensors
+                sensors.forEach(sensor => {
+                    sensor.marker.setOpacity(1);
+                    sensor.circle.setOpacity(0.2);
+                    sensor.marker.setStyle({ opacity: 1 });
+                    sensor.marker.getElement().classList.remove('sensor-hidden');
+                    sensor.circle.getElement().classList.remove('sensor-hidden');
+                });
+                
+                // Update button states
+                toggleSensorsBtn.innerHTML = '<i class="fas fa-eye"></i><span>Hide</span>';
+                toggleSensorsBtn.title = "Hide Sensors";
+                hideSensorsBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide All Sensors';
+                hideSensorsBtn.classList.remove('button-success');
+                hideSensorsBtn.classList.add('button-info');
+            }
         }
         
         // Import/Export Functions
@@ -1614,7 +1810,7 @@
             
             const exportData = {
                 project: "EGIPRON RFI Sensor Deployment",
-                version: "5.0",
+                version: "5.1",
                 timestamp: new Date().toISOString(),
                 mapType: currentMap,
                 sensorCount: sensors.length,
