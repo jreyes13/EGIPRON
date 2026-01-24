@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFI Sensor Coverage Simulator - Simple Mockup</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+        }
+        
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            width: 320px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 22px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h1 i {
+            color: #3498db;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin: 8px 0;
+        }
+        
+        .value-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        
+        #coverageRadius {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        .parameter-slider {
+            margin: 15px 0;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: transform 0.2s;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border-color: #2c3e50;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        #sensorInfo {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 13px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .info-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        
+        .sensor-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            z-index: 1000;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .instructions {
+            font-size: 13px;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div id="controls">
+        <h1>
+            📡 RFI Sensor Coverage Simulator
+        </h1>
+        
+        <div class="control-group">
+            <label for="coverageRadius">Coverage Radius (meters)</label>
+            <input type="range" id="coverageRadius" min="100" max="5000" value="1000" step="100">
+            <div class="value-display">
+                <span>100m</span>
+                <span id="radiusValue">1000m</span>
+                <span>5000m</span>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Coverage Color</label>
+            <div class="color-picker">
+                <div class="color-option selected" style="background: rgba(52, 152, 219, 0.3);" data-color="rgba(52, 152, 219, 0.3)"></div>
+                <div class="color-option" style="background: rgba(46, 204, 113, 0.3);" data-color="rgba(46, 204, 113, 0.3)"></div>
+                <div class="color-option" style="background: rgba(155, 89, 182, 0.3);" data-color="rgba(155, 89, 182, 0.3)"></div>
+                <div class="color-option" style="background: rgba(241, 196, 15, 0.3);" data-color="rgba(241, 196, 15, 0.3)"></div>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Sensor Parameters</label>
+            <div class="parameter-slider">
+                <div class="value-display">
+                    <span>Frequency: <span id="freqValue">900 MHz</span></span>
+                </div>
+                <input type="range" id="frequency" min="100" max="3000" value="900" step="100">
+            </div>
+            
+            <div class="parameter-slider">
+                <div class="value-display">
+                    <span>Height: <span id="heightValue">10m</span></span>
+                </div>
+                <input type="range" id="height" min="1" max="100" value="10" step="1">
+            </div>
+        </div>
+        
+        <button id="clearBtn">🗑️ Clear All Sensors</button>
+        
+        <div id="sensorInfo">
+            <div class="info-line"><strong>Instructions:</strong></div>
+            <div class="info-line">1. Click anywhere on the map to place a sensor</div>
+            <div class="info-line">2. Adjust radius with the slider</div>
+            <div class="info-line">3. Change coverage color as needed</div>
+            <div class="info-line">4. Each click adds a new sensor</div>
+        </div>
+        
+        <div class="instructions">
+            This is a mockup. Real coverage depends on terrain, buildings, frequency, and antenna characteristics.
+        </div>
+    </div>
+    
+    <div class="sensor-counter">
+        Sensors: <span id="sensorCount">0</span>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([40.7128, -74.0060], 12); // New York default
+        
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Store sensors
+        let sensors = [];
+        let coverageColor = 'rgba(52, 152, 219, 0.3)';
+        let coverageBorderColor = 'rgba(52, 152, 219, 0.6)';
+        
+        // DOM elements
+        const radiusSlider = document.getElementById('coverageRadius');
+        const radiusValue = document.getElementById('radiusValue');
+        const frequencySlider = document.getElementById('frequency');
+        const freqValue = document.getElementById('freqValue');
+        const heightSlider = document.getElementById('height');
+        const heightValue = document.getElementById('heightValue');
+        const clearBtn = document.getElementById('clearBtn');
+        const sensorCount = document.getElementById('sensorCount');
+        const colorOptions = document.querySelectorAll('.color-option');
+        
+        // Update radius display
+        radiusSlider.addEventListener('input', function() {
+            radiusValue.textContent = this.value + 'm';
+            updateAllCoverage();
+        });
+        
+        // Update frequency display
+        frequencySlider.addEventListener('input', function() {
+            freqValue.textContent = this.value + ' MHz';
+            updateAllCoverage();
+        });
+        
+        // Update height display
+        heightSlider.addEventListener('input', function() {
+            heightValue.textContent = this.value + 'm';
+            updateAllCoverage();
+        });
+        
+        // Color picker
+        colorOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from all
+                colorOptions.forEach(opt => opt.classList.remove('selected'));
+                // Add to clicked
+                this.classList.add('selected');
+                // Update color
+                coverageColor = this.getAttribute('data-color');
+                // Update border color (darker version)
+                const rgb = coverageColor.match(/\d+/g);
+                coverageBorderColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.6)`;
+                updateAllCoverage();
+            });
+        });
+        
+        // Clear all sensors
+        clearBtn.addEventListener('click', function() {
+            sensors.forEach(sensor => {
+                map.removeLayer(sensor.marker);
+                map.removeLayer(sensor.circle);
+            });
+            sensors = [];
+            updateSensorCount();
+        });
+        
+        // Add sensor on map click
+        map.on('click', function(e) {
+            addSensor(e.latlng.lat, e.latlng.lng);
+        });
+        
+        function addSensor(lat, lng) {
+            const radius = parseInt(radiusSlider.value);
+            const frequency = parseInt(frequencySlider.value);
+            const height = parseInt(heightSlider.value);
+            
+            // Create sensor marker
+            const marker = L.circleMarker([lat, lng], {
+                radius: 8,
+                fillColor: coverageBorderColor.replace('0.6', '1'),
+                color: '#2c3e50',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 1
+            }).addTo(map);
+            
+            // Create coverage circle
+            const circle = L.circle([lat, lng], {
+                color: coverageBorderColor,
+                fillColor: coverageColor,
+                fillOpacity: 0.3,
+                radius: radius
+            }).addTo(map);
+            
+            // Bind popup with info
+            const popupContent = `
+                <div style="padding: 5px;">
+                    <strong>RFI Sensor</strong><br>
+                    Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}<br>
+                    Coverage: ${radius}m radius<br>
+                    Frequency: ${frequency} MHz<br>
+                    Height: ${height}m<br>
+                    <small>Click to remove</small>
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent);
+            circle.bindPopup(popupContent);
+            
+            // Store sensor
+            const sensor = {
+                lat: lat,
+                lng: lng,
+                radius: radius,
+                frequency: frequency,
+                height: height,
+                marker: marker,
+                circle: circle
+            };
+            
+            sensors.push(sensor);
+            updateSensorCount();
+            
+            // Remove sensor on marker click
+            marker.on('click', function(e) {
+                e.originalEvent.preventDefault();
+                e.originalEvent.stopPropagation();
+                removeSensor(sensor);
+            });
+            
+            circle.on('click', function(e) {
+                e.originalEvent.preventDefault();
+                e.originalEvent.stopPropagation();
+                removeSensor(sensor);
+            });
+        }
+        
+        function removeSensor(sensor) {
+            map.removeLayer(sensor.marker);
+            map.removeLayer(sensor.circle);
+            sensors = sensors.filter(s => s !== sensor);
+            updateSensorCount();
+        }
+        
+        function updateAllCoverage() {
+            sensors.forEach(sensor => {
+                // Update radius
+                sensor.radius = parseInt(radiusSlider.value);
+                sensor.circle.setRadius(sensor.radius);
+                
+                // Update colors
+                sensor.circle.setStyle({
+                    color: coverageBorderColor,
+                    fillColor: coverageColor
+                });
+                
+                sensor.marker.setStyle({
+                    fillColor: coverageBorderColor.replace('0.6', '1')
+                });
+                
+                // Update popup with new values
+                const popupContent = `
+                    <div style="padding: 5px;">
+                        <strong>RFI Sensor</strong><br>
+                        Location: ${sensor.lat.toFixed(4)}, ${sensor.lng.toFixed(4)}<br>
+                        Coverage: ${sensor.radius}m radius<br>
+                        Frequency: ${frequencySlider.value} MHz<br>
+                        Height: ${heightSlider.value}m<br>
+                        <small>Click to remove</small>
+                    </div>
+                `;
+                
+                sensor.marker.getPopup().setContent(popupContent);
+                sensor.circle.getPopup().setContent(popupContent);
+            });
+        }
+        
+        function updateSensorCount() {
+            sensorCount.textContent = sensors.length;
+        }
+        
+        // Add some default sensors for demo
+        setTimeout(() => {
+            addSensor(40.7128, -74.0060); // NYC
+            addSensor(40.7589, -73.9851); // Times Square
+            addSensor(40.7489, -73.9680); // UN Building
+        }, 500);
+    </script>
+</body>
+</html>
