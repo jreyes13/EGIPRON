@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EGIPRON RFI Sensor Planner v4.2 - Direct Placement</title>
+    <title>EGIPRON RFI Sensor Planner v4.3 - Anywhere Placement</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
@@ -778,6 +778,15 @@
         .placement-cursor {
             cursor: crosshair !important;
         }
+        
+        /* Disable pointer events on coverage circles during placement */
+        .placement-mode-active .leaflet-interactive {
+            pointer-events: none !important;
+        }
+        
+        .placement-mode-active .sensor-marker {
+            pointer-events: auto !important;
+        }
     </style>
 </head>
 <body>
@@ -799,6 +808,7 @@
     <!-- Placement Instruction -->
     <div class="placement-instruction" id="placementInstruction">
         <i class="fas fa-mouse-pointer"></i> Click anywhere on the map to place sensor
+        <br><small>Press ESC to cancel placement mode</small>
     </div>
     
     <!-- Controls Panel -->
@@ -1193,17 +1203,26 @@
             cancelEdit.addEventListener('click', () => editModal.classList.remove('active'));
             saveChanges.addEventListener('click', saveSensorChanges);
             
-            // Map click for sensor placement
+            // Map click for sensor placement - HIGHER PRIORITY
             map.on('click', (e) => {
                 if (isAddingSensor) {
                     addSensor(e.latlng.lat, e.latlng.lng, currentSensorType);
+                    return; // Prevent other click handlers from firing
                 }
-            });
+            }, true); // Use capture phase to get click first
             
             // Escape key to cancel placement
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && isAddingSensor) {
                     cancelPlacement();
+                }
+            });
+            
+            // Click on map container to cancel placement
+            map.getContainer().addEventListener('click', (e) => {
+                if (isAddingSensor && e.target === map.getContainer()) {
+                    // Clicked on map background (not on a sensor)
+                    // Placement continues
                 }
             });
             
@@ -1363,6 +1382,12 @@
             placementInstruction.classList.add('active');
             map.getContainer().classList.add('placement-cursor');
             
+            // Disable pointer events on coverage circles during placement
+            sensors.forEach(sensor => {
+                sensor.circle.getElement().style.pointerEvents = 'none';
+                sensor.marker.getElement().classList.add('sensor-marker');
+            });
+            
             // Auto-cancel after 30 seconds
             setTimeout(() => {
                 if (isAddingSensor) {
@@ -1376,6 +1401,12 @@
             updateAddButton(false);
             placementInstruction.classList.remove('active');
             map.getContainer().classList.remove('placement-cursor');
+            
+            // Re-enable pointer events on coverage circles
+            sensors.forEach(sensor => {
+                sensor.circle.getElement().style.pointerEvents = '';
+                sensor.marker.getElement().classList.remove('sensor-marker');
+            });
         }
         
         function updateAddButton(adding) {
@@ -1410,10 +1441,11 @@
                 color: "#1e293b",
                 weight: 3,
                 opacity: 1,
-                fillOpacity: 1
+                fillOpacity: 1,
+                className: 'sensor-marker'
             }).addTo(map);
             
-            // Create coverage circle - ALLOW OVERLAPPING
+            // Create coverage circle
             const circle = L.circle([lat, lng], {
                 color: sensorType.borderColor,
                 fillColor: sensorType.color,
@@ -1444,24 +1476,39 @@
             marker.bindPopup(popupContent);
             circle.bindPopup(popupContent);
             
-            // Click handlers
+            // Click handlers - PREVENT DEFAULT BEHAVIOR DURING PLACEMENT
             marker.on('click', (e) => {
+                if (isAddingSensor) {
+                    // If we're in placement mode, don't select the sensor
+                    e.originalEvent.stopPropagation();
+                    e.originalEvent.stopImmediatePropagation();
+                    return;
+                }
+                
                 e.originalEvent.stopPropagation();
-                cancelPlacement(); // Cancel placement mode if active
                 selectSensor(sensor);
             });
             
             circle.on('click', (e) => {
+                if (isAddingSensor) {
+                    // If we're in placement mode, don't select the sensor
+                    e.originalEvent.stopPropagation();
+                    e.originalEvent.stopImmediatePropagation();
+                    return;
+                }
+                
                 e.originalEvent.stopPropagation();
-                cancelPlacement(); // Cancel placement mode if active
                 selectSensor(sensor);
             });
             
             // Right-click to delete
             marker.on('contextmenu', (e) => {
                 e.originalEvent.preventDefault();
-                cancelPlacement(); // Cancel placement mode if active
-                deleteSensor(sensor);
+                if (isAddingSensor) {
+                    cancelPlacement();
+                } else {
+                    deleteSensor(sensor);
+                }
             });
             
             // Visual feedback for placement
@@ -1469,6 +1516,11 @@
             setTimeout(() => {
                 marker.setStyle({ weight: 3, color: '#1e293b' });
             }, 1000);
+            
+            // Disable pointer events on new circle if in placement mode
+            if (isAddingSensor) {
+                circle.getElement().style.pointerEvents = 'none';
+            }
             
             // Continue in placement mode (don't cancel)
             // Placement mode stays active so user can place multiple sensors
@@ -1614,6 +1666,11 @@
                     color: s.id === sensor.id ? '#f59e0b' : '#1e293b'
                 });
             });
+            
+            // Cancel placement mode if active
+            if (isAddingSensor) {
+                cancelPlacement();
+            }
         }
         
         function openEditModal(sensorId) {
