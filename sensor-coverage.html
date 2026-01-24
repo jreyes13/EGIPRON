@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EGIPRON RFI Sensor Planner - Advanced Coverage Simulation</title>
+    <title>EGIPRON RFI Sensor Planner v3.0 - Advanced 3D Coverage</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-elevation@1.0.0/dist/leaflet-elevation.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -16,7 +17,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             overflow: hidden;
-            background: #f5f7fa;
+            background: #0f172a;
         }
         
         #map {
@@ -32,15 +33,16 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
             z-index: 1000;
             width: 420px;
             max-height: 90vh;
             overflow-y: auto;
-            border: 1px solid #e1e5e9;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            backdrop-filter: blur(10px);
         }
         
         .control-group {
@@ -54,7 +56,7 @@
         }
         
         h1 {
-            color: #1a365d;
+            color: #1e293b;
             font-size: 24px;
             margin-bottom: 8px;
             display: flex;
@@ -64,7 +66,7 @@
         }
         
         .subtitle {
-            color: #718096;
+            color: #64748b;
             font-size: 14px;
             margin-bottom: 25px;
             line-height: 1.5;
@@ -72,7 +74,7 @@
         
         h2 {
             font-size: 16px;
-            color: #2d3748;
+            color: #334155;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
@@ -86,7 +88,7 @@
         label {
             display: block;
             font-weight: 600;
-            color: #4a5568;
+            color: #475569;
             margin-bottom: 10px;
             font-size: 14px;
         }
@@ -100,14 +102,14 @@
         
         .sensor-btn {
             padding: 12px 8px;
-            background: #f7fafc;
+            background: #f1f5f9;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             text-align: center;
             transition: all 0.2s;
-            color: #4a5568;
+            color: #475569;
             font-size: 13px;
             display: flex;
             flex-direction: column;
@@ -116,7 +118,7 @@
         }
         
         .sensor-btn:hover {
-            background: #edf2f7;
+            background: #e2e8f0;
         }
         
         .sensor-btn.active {
@@ -162,7 +164,7 @@
         
         .parameter-value {
             font-weight: 600;
-            color: #2d3748;
+            color: #334155;
         }
         
         .parameter-slider {
@@ -182,8 +184,8 @@
             border-radius: 6px;
             text-align: center;
             font-weight: 600;
-            color: #2d3748;
-            background: #f8f9fa;
+            color: #334155;
+            background: #f8fafc;
         }
         
         input[type="range"] {
@@ -191,7 +193,7 @@
             margin: 8px 0;
             height: 6px;
             border-radius: 3px;
-            background: #e2e8f0;
+            background: linear-gradient(to right, #e2e8f0, #4c6ef5);
             outline: none;
             -webkit-appearance: none;
         }
@@ -204,23 +206,19 @@
             background: #4c6ef5;
             cursor: pointer;
             border: 3px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        input[type="range"]:disabled::-webkit-slider-thumb {
-            background: #a0aec0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         
         .value-display {
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            color: #718096;
+            color: #64748b;
             margin-top: 2px;
         }
         
         .results-box {
-            background: #f8fafc;
+            background: #f1f5f9;
             border-radius: 8px;
             padding: 18px;
             margin-top: 10px;
@@ -235,21 +233,22 @@
         }
         
         .result-label {
-            color: #4a5568;
+            color: #475569;
         }
         
         .result-value {
             font-weight: 600;
-            color: #2d3748;
+            color: #1e293b;
         }
         
         .limiting-factor {
-            background: #fff3cd;
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
             padding: 12px;
             border-radius: 6px;
             margin-top: 15px;
             border: 1px solid #ffeaa7;
             font-size: 14px;
+            color: #856404;
         }
         
         .limiting-factor i {
@@ -257,43 +256,27 @@
             margin-right: 8px;
         }
         
-        .advanced-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            padding: 10px 0;
-            color: #4c6ef5;
-            font-weight: 600;
-        }
-        
-        .advanced-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        
-        .advanced-content.expanded {
-            max-height: 400px;
-            margin-top: 15px;
-        }
-        
-        .jammer-ratio {
-            background: #fff8e1;
+        .terrain-toggle {
+            background: linear-gradient(135deg, #e6fffa, #b2f5ea);
             padding: 12px;
             border-radius: 6px;
             margin-top: 15px;
-            border: 1px solid #ffe082;
-            font-size: 13px;
+            border: 1px solid #81e6d9;
+            font-size: 14px;
+            color: #234e52;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         
-        .jammer-ratio i {
-            color: #f59e0b;
+        .terrain-toggle i {
+            color: #0d9488;
             margin-right: 8px;
         }
         
         button {
-            background: #4c6ef5;
+            background: linear-gradient(135deg, #4c6ef5, #3b5bdb);
             color: white;
             border: none;
             padding: 14px 20px;
@@ -311,20 +294,19 @@
         }
         
         button:hover {
-            background: #3b5bdb;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(76, 110, 245, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 110, 245, 0.4);
         }
         
         .button-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e0);
+            color: #475569;
             margin-top: 10px;
         }
         
         .button-secondary:hover {
-            background: #cbd5e0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #cbd5e0, #94a3b8);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
         
         #sensorInfo {
@@ -340,51 +322,42 @@
             display: flex;
             justify-content: space-between;
             margin: 6px 0;
-            color: #4a5568;
+            color: #475569;
         }
         
         .sensor-counter {
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(26, 54, 93, 0.95);
+            background: rgba(30, 41, 59, 0.95);
             color: white;
             padding: 12px 20px;
             border-radius: 8px;
             z-index: 1000;
             font-weight: 600;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .instructions {
-            font-size: 13px;
-            color: #718096;
-            font-style: italic;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
-            line-height: 1.5;
         }
         
         .legend {
             position: absolute;
             bottom: 20px;
             right: 20px;
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 1000;
             font-size: 13px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(226, 232, 240, 0.8);
             width: 200px;
+            backdrop-filter: blur(10px);
         }
         
         .legend-title {
             font-weight: 600;
-            color: #2d3748;
+            color: #1e293b;
             margin-bottom: 10px;
             font-size: 14px;
             display: flex;
@@ -422,31 +395,95 @@
         }
         
         .stat-box {
-            background: #f8f9fa;
+            background: #f1f5f9;
             padding: 10px;
             border-radius: 6px;
             text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-2px);
+            background: #e2e8f0;
         }
         
         .stat-value {
             font-weight: 700;
             font-size: 16px;
-            color: #2d3748;
+            color: #1e293b;
         }
         
         .stat-label {
             font-size: 11px;
-            color: #718096;
+            color: #64748b;
             margin-top: 4px;
         }
         
         .randomize-btn {
-            background: #9f7aea;
-            margin-top: 5px;
+            background: linear-gradient(135deg, #9f7aea, #805ad5);
         }
         
         .randomize-btn:hover {
-            background: #805ad5;
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
+        }
+        
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            background: #f1f5f9;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            font-size: 13px;
+            color: #475569;
+        }
+        
+        .mode-btn.active {
+            background: #4c6ef5;
+            color: white;
+            border-color: #4c6ef5;
+        }
+        
+        .elevation-chart {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 15px;
+            width: 400px;
+            height: 200px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+        
+        .elevation-chart.active {
+            display: block;
+        }
+        
+        .elevation-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 150px;
+            position: relative;
         }
         
         @media (max-width: 768px) {
@@ -455,21 +492,26 @@
                 padding: 20px;
             }
             
-            .sensor-counter {
-                top: auto;
-                bottom: 20px;
-                right: 20px;
-            }
-            
-            .sensor-selector {
-                grid-template-columns: 1fr;
-            }
-            
-            .legend {
-                left: 20px;
-                right: auto;
+            .elevation-chart {
                 width: calc(100% - 40px);
             }
+        }
+        
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 10000;
+            text-align: center;
+        }
+        
+        .loading.active {
+            display: block;
         }
     </style>
 </head>
@@ -479,14 +521,19 @@
     <div id="controls">
         <h1>
             <i class="fas fa-satellite-dish"></i>
-            EGIPRON RFI Sensor Planner
+            EGIPRON RFI Sensor Planner v3.0
         </h1>
         <div class="subtitle">
-            Advanced coverage simulation for RFI detection sensors. Adjust all parameters and randomize European deployments.
+            Advanced 3D coverage simulation with terrain awareness. Each sensor has independent parameters.
+        </div>
+        
+        <div class="mode-toggle">
+            <div class="mode-btn active" data-mode="placement">📍 Placement Mode</div>
+            <div class="mode-btn" data-mode="edit">⚡ Edit Sensors</div>
         </div>
         
         <div class="control-group">
-            <h2><i class="fas fa-microchip"></i> Sensor Type</h2>
+            <h2><i class="fas fa-microchip"></i> Sensor Type Selection</h2>
             <div class="sensor-selector">
                 <div class="sensor-btn qb100 active" data-type="qb100">
                     <div class="sensor-icon"><i class="fas fa-satellite"></i></div>
@@ -522,104 +569,11 @@
         </div>
         
         <div class="control-group">
-            <h2><i class="fas fa-sliders-h"></i> Jammer & Sensor Parameters</h2>
-            
-            <div class="parameter-control">
-                <div class="parameter-row">
-                    <span>Transmitter Height</span>
-                    <span class="parameter-value" id="txHeightValue">10.0 m</span>
-                </div>
-                <div class="parameter-slider">
-                    <div class="slider-container">
-                        <input type="range" id="txHeight" min="1" max="100" value="10" step="0.1">
-                    </div>
-                    <input type="number" id="txHeightInput" class="value-input" value="10.0" step="0.1" min="1" max="100">
-                </div>
-                <div class="value-display">
-                    <span>1 m</span>
-                    <span>50 m</span>
-                    <span>100 m</span>
-                </div>
-            </div>
-            
-            <div class="parameter-control">
-                <div class="parameter-row">
-                    <span>Transmitter Power (EIRP)</span>
-                    <span class="parameter-value" id="txPowerValue">1.000 W</span>
-                </div>
-                <div class="parameter-slider">
-                    <div class="slider-container">
-                        <input type="range" id="txPower" min="0.001" max="10" value="1.000" step="0.001">
-                    </div>
-                    <input type="number" id="txPowerInput" class="value-input" value="1.000" step="0.001" min="0.001" max="10">
-                </div>
-                <div class="value-display">
-                    <span>1 mW</span>
-                    <span>5 W</span>
-                    <span>10 W</span>
-                </div>
-            </div>
-            
-            <div class="parameter-control">
-                <div class="parameter-row">
-                    <span>Sensor Height</span>
-                    <span class="parameter-value" id="sensorHeightValue">10.0 m</span>
-                </div>
-                <div class="parameter-slider">
-                    <div class="slider-container">
-                        <input type="range" id="sensorHeight" min="1" max="100" value="10" step="0.1">
-                    </div>
-                    <input type="number" id="sensorHeightInput" class="value-input" value="10.0" step="0.1" min="1" max="100">
-                </div>
-                <div class="value-display">
-                    <span>1 m</span>
-                    <span>50 m</span>
-                    <span>100 m</span>
-                </div>
-            </div>
-            
-            <div class="parameter-control">
-                <div class="parameter-row">
-                    <span>Frequency</span>
-                    <span class="parameter-value" id="freqValue">1.58 GHz</span>
-                </div>
-                <div class="parameter-slider">
-                    <div class="slider-container">
-                        <input type="range" id="frequency" min="100" max="6000" value="1580" step="10">
-                    </div>
-                    <input type="number" id="frequencyInput" class="value-input" value="1580" step="10" min="100" max="6000">
-                </div>
-                <div class="value-display">
-                    <span>100 MHz</span>
-                    <span>3 GHz</span>
-                    <span>6 GHz</span>
-                </div>
-            </div>
-            
-            <div class="advanced-toggle" id="advancedToggle">
-                <span><i class="fas fa-cogs"></i> Advanced Settings</span>
-                <span id="advancedIcon"><i class="fas fa-chevron-down"></i></span>
-            </div>
-            
-            <div class="advanced-content" id="advancedContent">
-                <div class="parameter-row">
-                    <span>Transmitter Power</span>
-                    <span class="parameter-value" id="txPowerDbmValue">30.00 dBm</span>
-                </div>
-                
-                <div class="jammer-ratio">
-                    <i class="fas fa-info-circle"></i>
-                    <span id="smartphoneNote">Smartphone: -125 dBm GNSS signal, 25 dB Jammer/Signal ratio</span>
-                </div>
-                
-                <div class="parameter-row">
-                    <span>Earth Radius</span>
-                    <span class="parameter-value">6,372,507 m</span>
-                </div>
-                
-                <div class="parameter-row">
-                    <span>Speed of Light</span>
-                    <span class="parameter-value">299,792,458 m/s</span>
+            <h2><i class="fas fa-sliders-h"></i> Current Sensor Parameters</h2>
+            <div id="currentSensorInfo">
+                <div style="text-align: center; padding: 20px; color: #64748b;">
+                    <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                    <div>Select a sensor to edit its parameters</div>
                 </div>
             </div>
         </div>
@@ -629,56 +583,63 @@
             <div class="results-box">
                 <div class="result-row">
                     <span class="result-label">Horizon Distance</span>
-                    <span class="result-value" id="horizonDistance">22.58 km</span>
+                    <span class="result-value" id="horizonDistance">-- km</span>
                 </div>
                 <div class="result-row">
                     <span class="result-label">Path Loss Distance</span>
-                    <span class="result-value" id="pathLossDistance">26.91 km</span>
+                    <span class="result-value" id="pathLossDistance">-- km</span>
                 </div>
                 <div class="result-row">
                     <span class="result-label">Coverage Radius</span>
-                    <span class="result-value" id="coverageRadiusResult">22.5 km</span>
+                    <span class="result-value" id="coverageRadiusResult">-- km</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Terrain Factor</span>
+                    <span class="result-value" id="terrainFactor">--</span>
                 </div>
             </div>
             
             <div class="limiting-factor" id="limitingFactor">
                 <i class="fas fa-exclamation-triangle"></i>
-                <span id="limitingText">Horizon distance is the limiting factor</span>
+                <span id="limitingText">Select or add a sensor</span>
+            </div>
+            
+            <div class="terrain-toggle" id="terrainToggle">
+                <div>
+                    <i class="fas fa-mountain"></i>
+                    <span>Terrain Awareness: <span id="terrainStatus">OFF</span></span>
+                </div>
+                <div class="fas fa-toggle-off" id="terrainToggleIcon"></div>
             </div>
         </div>
         
         <button id="addSensorBtn">
-            <i class="fas fa-plus-circle"></i> Click Map to Add Sensor
+            <i class="fas fa-plus-circle"></i> Add New Sensor (Click Map)
         </button>
         
-        <button class="button-secondary" id="randomizeBtn">
-            <i class="fas fa-random"></i> Randomize European Sensors
+        <button class="randomize-btn" id="randomizeBtn">
+            <i class="fas fa-random"></i> Randomize European Deployment
         </button>
         
-        <button class="button-secondary" id="clearBtn">
-            <i class="fas fa-trash-alt"></i> Clear All Sensors
+        <button class="button-secondary" id="analyzeBtn">
+            <i class="fas fa-chart-line"></i> Analyze Coverage Gaps
         </button>
         
         <button class="button-secondary" id="exportBtn">
-            <i class="fas fa-download"></i> Export Sensor Data
+            <i class="fas fa-download"></i> Export Deployment Plan
         </button>
         
         <div id="sensorInfo">
             <div class="info-line"><strong><i class="fas fa-info-circle"></i> Instructions</strong></div>
-            <div class="info-line">• Adjust all parameters with sliders or input boxes</div>
-            <div class="info-line">• Click "Randomize" for automatic European deployment</div>
-            <div class="info-line">• Click map to place custom sensors</div>
-            <div class="info-line">• Export data for field deployment planning</div>
-        </div>
-        
-        <div class="instructions">
-            Note: European randomization places one sensor of each type in random locations across Europe.
-            All calculations update in real-time as parameters change.
+            <div class="info-line">• Click map to add sensors anywhere</div>
+            <div class="info-line">• Click on sensors to edit parameters</div>
+            <div class="info-line">• Toggle terrain for 3D awareness</div>
+            <div class="info-line">• Each sensor has independent settings</div>
         </div>
     </div>
     
     <div class="sensor-counter">
-        <i class="fas fa-satellite-dish"></i> Total Sensors: <span id="sensorCount">0</span>
+        <i class="fas fa-satellite-dish"></i> Total: <span id="sensorCount">0</span>
     </div>
     
     <div class="legend">
@@ -710,24 +671,53 @@
             <span>Smartphone Coverage</span>
         </div>
     </div>
+    
+    <div class="elevation-chart" id="elevationChart">
+        <div class="elevation-title">
+            <span><i class="fas fa-mountain"></i> Terrain Profile</span>
+            <span style="cursor: pointer;" onclick="document.getElementById('elevationChart').classList.remove('active')">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div class="chart-container" id="chartContainer">
+            <canvas id="elevationCanvas"></canvas>
+        </div>
+    </div>
+    
+    <div class="loading" id="loading">
+        <div style="margin-bottom: 15px;">
+            <i class="fas fa-spinner fa-spin fa-3x" style="color: #4c6ef5;"></i>
+        </div>
+        <div style="font-weight: 600; color: #334155;">Loading Terrain Data...</div>
+        <div style="font-size: 12px; color: #64748b; margin-top: 5px;">This may take a few seconds</div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-elevation@1.0.0/dist/leaflet-elevation.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
-        // Initialize map centered on Europe
+        // Initialize map with terrain view
         const map = L.map('map').setView([50.0, 10.0], 5);
         
-        // Add tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors | EGIPRON RFI Planner',
-            maxZoom: 19
+        // Add topographic map layer
+        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors, SRTM | © OpenTopoMap (CC-BY-SA)',
+            maxZoom: 17
         }).addTo(map);
         
-        // EGIPRON Sensor Parameters
+        // Add terrain hillshading layer
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© Esri',
+            maxZoom: 13,
+            opacity: 0.3
+        }).addTo(map);
+        
+        // EGIPRON Sensor Types
         const sensorTypes = {
             qb100: {
                 name: "QB100 Professional",
-                sensitivity: -125, // dBm
+                sensitivity: -125,
                 notes: "IQ PSD processing",
                 color: "rgba(66, 153, 225, 0.3)",
                 borderColor: "#4299e1",
@@ -737,7 +727,7 @@
             },
             qb010: {
                 name: "QB010",
-                sensitivity: -95, // dBm
+                sensitivity: -95,
                 notes: "IQ PSD processing",
                 color: "rgba(56, 161, 105, 0.3)",
                 borderColor: "#38a169",
@@ -747,172 +737,493 @@
             },
             smartphone: {
                 name: "Smartphone",
-                sensitivity: -100, // dBm
+                sensitivity: -100,
                 notes: "Post-correlation based on C/N0 drop",
                 color: "rgba(237, 137, 54, 0.3)",
                 borderColor: "#ed8936",
                 markerColor: "#ed8936",
                 icon: "fas fa-mobile-alt",
                 description: "Smartphone-based detection",
-                gnssSignal: -125, // dBm
-                jammerRatio: 25 // dB
+                gnssSignal: -125,
+                jammerRatio: 25
             }
         };
         
         // Constants
         const CONSTANTS = {
-            earthRadius: 6372507, // meters
-            speedOfLight: 299792458 // m/s
+            earthRadius: 6372507,
+            speedOfLight: 299792458
         };
         
-        // Parameter state
-        let parameters = {
-            transmitterHeight: 10.0, // meters
-            transmitterPowerW: 1.000, // Watts
-            sensorHeight: 10.0, // meters
-            frequency: 1.58e9 // Hz (1.58 GHz)
-        };
-        
-        // Store sensors
+        // Global state
         let sensors = [];
         let currentSensorType = 'qb100';
+        let currentMode = 'placement';
+        let terrainEnabled = false;
+        let selectedSensor = null;
+        let elevationChart = null;
         
         // DOM elements
         const sensorBtns = document.querySelectorAll('.sensor-btn');
+        const modeBtns = document.querySelectorAll('.mode-btn');
         const horizonDistance = document.getElementById('horizonDistance');
         const pathLossDistance = document.getElementById('pathLossDistance');
         const coverageRadiusResult = document.getElementById('coverageRadiusResult');
+        const terrainFactor = document.getElementById('terrainFactor');
         const limitingText = document.getElementById('limitingText');
-        const clearBtn = document.getElementById('clearBtn');
-        const exportBtn = document.getElementById('exportBtn');
-        const randomizeBtn = document.getElementById('randomizeBtn');
-        const sensorCount = document.getElementById('sensorCount');
-        const addSensorBtn = document.getElementById('addSensorBtn');
-        const advancedToggle = document.getElementById('advancedToggle');
-        const advancedContent = document.getElementById('advancedContent');
-        const advancedIcon = document.getElementById('advancedIcon');
-        const smartphoneNote = document.getElementById('smartphoneNote');
-        const txPowerDbmValue = document.getElementById('txPowerDbmValue');
-        
-        // Parameter inputs
-        const txHeightSlider = document.getElementById('txHeight');
-        const txHeightInput = document.getElementById('txHeightInput');
-        const txHeightValue = document.getElementById('txHeightValue');
-        
-        const txPowerSlider = document.getElementById('txPower');
-        const txPowerInput = document.getElementById('txPowerInput');
-        const txPowerValue = document.getElementById('txPowerValue');
-        
-        const sensorHeightSlider = document.getElementById('sensorHeight');
-        const sensorHeightInput = document.getElementById('sensorHeightInput');
-        const sensorHeightValue = document.getElementById('sensorHeightValue');
-        
-        const frequencySlider = document.getElementById('frequency');
-        const frequencyInput = document.getElementById('frequencyInput');
-        const freqValue = document.getElementById('freqValue');
+        const currentSensorInfo = document.getElementById('currentSensorInfo');
+        const terrainToggle = document.getElementById('terrainToggle');
+        const terrainToggleIcon = document.getElementById('terrainToggleIcon');
+        const terrainStatus = document.getElementById('terrainStatus');
+        const loading = document.getElementById('loading');
         
         // Counter elements
         const qb100CountEl = document.getElementById('qb100Count');
         const qb010CountEl = document.getElementById('qb010Count');
         const smartphoneCountEl = document.getElementById('smartphoneCount');
+        const sensorCount = document.getElementById('sensorCount');
+        
+        // Default parameters for new sensors
+        const DEFAULT_PARAMS = {
+            transmitterHeight: 10.0,
+            transmitterPowerW: 1.000,
+            sensorHeight: 10.0,
+            frequency: 1.58e9
+        };
         
         // Initialize
-        updateParameterDisplays();
-        updateSensorType();
-        calculateAndDisplayCoverage();
+        setupEventListeners();
         addRandomEuropeanSensors();
         
-        // Parameter event listeners
-        function setupParameterControl(slider, input, valueDisplay, parameterName, formatFn) {
-            slider.addEventListener('input', function() {
-                const value = parseFloat(this.value);
-                input.value = value.toFixed(parameterName === 'frequency' ? 0 : 3);
-                parameters[parameterName] = parameterName === 'frequency' ? value * 1e6 : value;
-                valueDisplay.textContent = formatFn(value);
-                updateParameterDisplays();
-                calculateAndDisplayCoverage();
-                updateAllSensors();
+        function setupEventListeners() {
+            // Sensor type selection
+            sensorBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (currentMode === 'placement') {
+                        sensorBtns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        currentSensorType = this.getAttribute('data-type');
+                    }
+                });
             });
             
-            input.addEventListener('change', function() {
-                let value = parseFloat(this.value);
-                if (isNaN(value)) value = slider.min;
-                if (value < parseFloat(slider.min)) value = parseFloat(slider.min);
-                if (value > parseFloat(slider.max)) value = parseFloat(slider.max);
+            // Mode selection
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    modeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentMode = this.getAttribute('data-mode');
+                    updateUIForMode();
+                });
+            });
+            
+            // Terrain toggle
+            terrainToggle.addEventListener('click', function() {
+                terrainEnabled = !terrainEnabled;
+                terrainToggleIcon.className = terrainEnabled ? 
+                    'fas fa-toggle-on' : 'fas fa-toggle-off';
+                terrainStatus.textContent = terrainEnabled ? 'ON' : 'OFF';
+                terrainToggle.style.background = terrainEnabled ? 
+                    'linear-gradient(135deg, #b2f5ea, #81e6d9)' : 
+                    'linear-gradient(135deg, #e6fffa, #b2f5ea)';
                 
-                slider.value = value;
-                this.value = value.toFixed(parameterName === 'frequency' ? 0 : 3);
-                parameters[parameterName] = parameterName === 'frequency' ? value * 1e6 : value;
-                valueDisplay.textContent = formatFn(value);
-                updateParameterDisplays();
-                calculateAndDisplayCoverage();
-                updateAllSensors();
+                if (terrainEnabled) {
+                    showLoading("Loading terrain data...");
+                    setTimeout(() => {
+                        hideLoading();
+                        if (selectedSensor) {
+                            updateSensorDisplay(selectedSensor);
+                        }
+                    }, 1000);
+                }
+            });
+            
+            // Add sensor button
+            document.getElementById('addSensorBtn').addEventListener('click', function() {
+                startSensorPlacement();
+            });
+            
+            // Randomize button
+            document.getElementById('randomizeBtn').addEventListener('click', function() {
+                addRandomEuropeanSensors();
+            });
+            
+            // Analyze button
+            document.getElementById('analyzeBtn').addEventListener('click', function() {
+                analyzeCoverageGaps();
+            });
+            
+            // Export button
+            document.getElementById('exportBtn').addEventListener('click', function() {
+                exportDeploymentPlan();
             });
         }
         
-        // Setup all parameter controls
-        setupParameterControl(txHeightSlider, txHeightInput, txHeightValue, 'transmitterHeight', 
-            v => `${v.toFixed(1)} m`);
+        function updateUIForMode() {
+            if (currentMode === 'edit') {
+                document.getElementById('addSensorBtn').style.display = 'none';
+                document.getElementById('randomizeBtn').style.display = 'none';
+            } else {
+                document.getElementById('addSensorBtn').style.display = 'flex';
+                document.getElementById('randomizeBtn').style.display = 'flex';
+            }
+        }
         
-        setupParameterControl(txPowerSlider, txPowerInput, txPowerValue, 'transmitterPowerW', 
-            v => `${v.toFixed(3)} W`);
+        function showLoading(message) {
+            loading.querySelector('div:nth-child(2)').textContent = message;
+            loading.classList.add('active');
+        }
         
-        setupParameterControl(sensorHeightSlider, sensorHeightInput, sensorHeightValue, 'sensorHeight', 
-            v => `${v.toFixed(1)} m`);
+        function hideLoading() {
+            loading.classList.remove('active');
+        }
         
-        setupParameterControl(frequencySlider, frequencyInput, freqValue, 'frequency', 
-            v => `${(v / 1000).toFixed(2)} GHz`);
+        // Generate random European locations (improved)
+        function getRandomEuropeanLocation() {
+            const europeanCities = [
+                { lat: 48.8566, lng: 2.3522, name: "Paris" },
+                { lat: 51.5074, lng: -0.1278, name: "London" },
+                { lat: 52.5200, lng: 13.4050, name: "Berlin" },
+                { lat: 41.9028, lng: 12.4964, name: "Rome" },
+                { lat: 40.4168, lng: -3.7038, name: "Madrid" },
+                { lat: 52.2297, lng: 21.0122, name: "Warsaw" },
+                { lat: 59.3293, lng: 18.0686, name: "Stockholm" },
+                { lat: 47.4979, lng: 19.0402, name: "Budapest" },
+                { lat: 50.0755, lng: 14.4378, name: "Prague" },
+                { lat: 45.4642, lng: 9.1900, name: "Milan" },
+                { lat: 53.3498, lng: -6.2603, name: "Dublin" },
+                { lat: 60.1699, lng: 24.9384, name: "Helsinki" },
+                { lat: 44.4268, lng: 26.1025, name: "Bucharest" },
+                { lat: 55.6761, lng: 12.5683, name: "Copenhagen" },
+                { lat: 50.8503, lng: 4.3517, name: "Brussels" }
+            ];
+            
+            return europeanCities[Math.floor(Math.random() * europeanCities.length)];
+        }
         
-        // Advanced toggle
-        advancedToggle.addEventListener('click', function() {
-            advancedContent.classList.toggle('expanded');
-            advancedIcon.innerHTML = advancedContent.classList.contains('expanded') ? 
-                '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
-        });
-        
-        // Sensor type selection
-        sensorBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                sensorBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentSensorType = this.getAttribute('data-type');
-                updateSensorType();
-                updateAllSensors();
+        function addRandomEuropeanSensors() {
+            // Clear existing sensors
+            sensors.forEach(sensor => {
+                map.removeLayer(sensor.marker);
+                map.removeLayer(sensor.circle);
             });
-        });
-        
-        function updateParameterDisplays() {
-            // Calculate and display dBm value
-            const txPowerDbm = 10 * Math.log10(parameters.transmitterPowerW) + 30;
-            txPowerDbmValue.textContent = `${txPowerDbm.toFixed(2)} dBm`;
+            sensors = [];
             
-            // Update smartphone note
-            const sensor = sensorTypes.smartphone;
-            smartphoneNote.textContent = `Smartphone: ${sensor.gnssSignal} dBm GNSS signal, ${sensor.jammerRatio} dB Jammer/Signal ratio`;
+            // Add one of each sensor type in random European cities
+            const sensorTypesList = ['qb100', 'qb010', 'smartphone'];
+            
+            sensorTypesList.forEach(type => {
+                const location = getRandomEuropeanLocation();
+                addSensor(location.lat, location.lng, type, {
+                    ...DEFAULT_PARAMS,
+                    name: `${sensorTypes[type].name} - ${location.name}`
+                });
+            });
+            
+            // Center map on the sensors
+            if (sensors.length > 0) {
+                const group = new L.featureGroup(sensors.map(s => s.marker));
+                map.fitBounds(group.getBounds().pad(0.5));
+            }
         }
         
-        function updateSensorType() {
-            calculateAndDisplayCoverage();
+        function startSensorPlacement() {
+            const addBtn = document.getElementById('addSensorBtn');
+            addBtn.innerHTML = '<i class="fas fa-crosshairs"></i> Click on Map to Place Sensor';
+            addBtn.style.background = 'linear-gradient(135deg, #38a169, #2f855a)';
+            
+            // Change cursor
+            map.getContainer().style.cursor = 'crosshair';
+            
+            // Temporarily listen for click
+            const clickHandler = function(e) {
+                addSensor(e.latlng.lat, e.latlng.lng, currentSensorType, {
+                    ...DEFAULT_PARAMS,
+                    name: `${sensorTypes[currentSensorType].name} ${sensors.length + 1}`
+                });
+                
+                // Reset button
+                addBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Add New Sensor (Click Map)';
+                addBtn.style.background = 'linear-gradient(135deg, #4c6ef5, #3b5bdb)';
+                map.getContainer().style.cursor = '';
+                map.off('click', clickHandler);
+            };
+            
+            map.on('click', clickHandler);
         }
         
-        // Calculate coverage based on EGIPRON formulas
-        function calculateCoverage(sensorType = currentSensorType) {
-            const sensor = sensorTypes[sensorType];
+        function addSensor(lat, lng, type, params) {
+            const sensorType = sensorTypes[type];
+            const results = calculateCoverage(params);
+            const coverageRadiusM = results.coverage * 1000;
             
-            // 1. Horizon Distance (km) = (√(2*Earth radius) * (√(Transmitter height) + √(Sensor height))) / 1000
+            // Create custom marker with sensor icon
+            const marker = L.circleMarker([lat, lng], {
+                radius: 12,
+                fillColor: sensorType.markerColor,
+                color: "#1e293b",
+                weight: 3,
+                opacity: 1,
+                fillOpacity: 1,
+                className: 'sensor-marker'
+            }).addTo(map);
+            
+            // Create coverage circle with pulse animation
+            const circle = L.circle([lat, lng], {
+                color: sensorType.borderColor,
+                fillColor: sensorType.color,
+                fillOpacity: 0.2,
+                weight: 2,
+                radius: coverageRadiusM
+            }).addTo(map);
+            
+            // Add pulse effect
+            setTimeout(() => {
+                circle.setStyle({ fillOpacity: 0.15 });
+            }, 500);
+            
+            const sensor = {
+                id: 'sensor_' + Date.now() + Math.random().toString(36).substr(2, 9),
+                lat: lat,
+                lng: lng,
+                type: type,
+                name: params.name || `${sensorType.name} ${sensors.length + 1}`,
+                params: { ...params },
+                radius: coverageRadiusM,
+                marker: marker,
+                circle: circle,
+                terrainAdjusted: false,
+                terrainFactor: 1.0,
+                createdAt: new Date().toISOString()
+            };
+            
+            sensors.push(sensor);
+            updateSensorCounts();
+            
+            // Click handler for sensor
+            marker.on('click', function(e) {
+                e.originalEvent.preventDefault();
+                e.originalEvent.stopPropagation();
+                selectSensor(sensor);
+            });
+            
+            circle.on('click', function(e) {
+                e.originalEvent.preventDefault();
+                e.originalEvent.stopPropagation();
+                selectSensor(sensor);
+            });
+            
+            // Right-click to delete
+            marker.on('contextmenu', function(e) {
+                e.originalEvent.preventDefault();
+                if (confirm(`Delete ${sensor.name}?`)) {
+                    removeSensor(sensor);
+                }
+            });
+            
+            return sensor;
+        }
+        
+        function selectSensor(sensor) {
+            selectedSensor = sensor;
+            updateSensorDisplay(sensor);
+            
+            // Highlight selected sensor
+            sensors.forEach(s => {
+                s.marker.setStyle({
+                    weight: s.id === sensor.id ? 4 : 2,
+                    color: s.id === sensor.id ? '#f59e0b' : '#1e293b'
+                });
+            });
+            
+            // Show terrain profile if enabled
+            if (terrainEnabled) {
+                showTerrainProfile(sensor);
+            }
+        }
+        
+        function updateSensorDisplay(sensor) {
+            const results = calculateCoverage(sensor.params);
+            const terrainResults = terrainEnabled ? 
+                calculateTerrainAdjustedCoverage(sensor) : results;
+            
+            // Update results display
+            horizonDistance.textContent = terrainResults.horizon.toFixed(2) + " km";
+            pathLossDistance.textContent = terrainResults.pathLoss.toFixed(2) + " km";
+            coverageRadiusResult.textContent = terrainResults.coverage.toFixed(1) + " km";
+            terrainFactor.textContent = terrainResults.terrainFactor?.toFixed(2) || "1.00";
+            
+            // Update limiting factor
+            if (terrainResults.limitingFactor === "horizon") {
+                limitingText.textContent = "Horizon distance is the limiting factor";
+            } else {
+                limitingText.textContent = "Path loss is the limiting factor";
+            }
+            
+            // Update sensor info display with editable parameters
+            const sensorType = sensorTypes[sensor.type];
+            currentSensorInfo.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="${sensorType.icon}" style="color: ${sensorType.borderColor}; font-size: 24px;"></i>
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b;">${sensor.name}</div>
+                            <div style="font-size: 12px; color: #64748b;">${sensorType.description}</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #64748b; background: #f1f5f9; padding: 8px; border-radius: 6px;">
+                        <i class="fas fa-map-marker-alt"></i> ${sensor.lat.toFixed(4)}°, ${sensor.lng.toFixed(4)}°
+                    </div>
+                </div>
+                
+                <div class="parameter-control">
+                    <div class="parameter-row">
+                        <span>Transmitter Height</span>
+                        <span class="parameter-value">${sensor.params.transmitterHeight.toFixed(1)} m</span>
+                    </div>
+                    <div class="parameter-slider">
+                        <div class="slider-container">
+                            <input type="range" class="sensor-param" data-param="transmitterHeight" 
+                                   min="1" max="100" value="${sensor.params.transmitterHeight}" step="0.1">
+                        </div>
+                        <input type="number" class="sensor-param-input" data-param="transmitterHeight" 
+                               value="${sensor.params.transmitterHeight.toFixed(1)}" step="0.1" min="1" max="100" style="width: 80px;">
+                    </div>
+                </div>
+                
+                <div class="parameter-control">
+                    <div class="parameter-row">
+                        <span>Transmitter Power</span>
+                        <span class="parameter-value">${sensor.params.transmitterPowerW.toFixed(3)} W</span>
+                    </div>
+                    <div class="parameter-slider">
+                        <div class="slider-container">
+                            <input type="range" class="sensor-param" data-param="transmitterPowerW" 
+                                   min="0.001" max="10" value="${sensor.params.transmitterPowerW}" step="0.001">
+                        </div>
+                        <input type="number" class="sensor-param-input" data-param="transmitterPowerW" 
+                               value="${sensor.params.transmitterPowerW.toFixed(3)}" step="0.001" min="0.001" max="10" style="width: 80px;">
+                    </div>
+                </div>
+                
+                <div class="parameter-control">
+                    <div class="parameter-row">
+                        <span>Sensor Height</span>
+                        <span class="parameter-value">${sensor.params.sensorHeight.toFixed(1)} m</span>
+                    </div>
+                    <div class="parameter-slider">
+                        <div class="slider-container">
+                            <input type="range" class="sensor-param" data-param="sensorHeight" 
+                                   min="1" max="100" value="${sensor.params.sensorHeight}" step="0.1">
+                        </div>
+                        <input type="number" class="sensor-param-input" data-param="sensorHeight" 
+                               value="${sensor.params.sensorHeight.toFixed(1)}" step="0.1" min="1" max="100" style="width: 80px;">
+                    </div>
+                </div>
+                
+                <div class="parameter-control">
+                    <div class="parameter-row">
+                        <span>Frequency</span>
+                        <span class="parameter-value">${(sensor.params.frequency / 1e9).toFixed(2)} GHz</span>
+                    </div>
+                    <div class="parameter-slider">
+                        <div class="slider-container">
+                            <input type="range" class="sensor-param" data-param="frequency" 
+                                   min="100" max="6000" value="${sensor.params.frequency / 1e6}" step="10">
+                        </div>
+                        <input type="number" class="sensor-param-input" data-param="frequency" 
+                               value="${(sensor.params.frequency / 1e6).toFixed(0)}" step="10" min="100" max="6000" style="width: 80px;">
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button onclick="updateSensorParams()" style="flex: 1;">
+                        <i class="fas fa-save"></i> Update
+                    </button>
+                    <button onclick="duplicateSensor()" class="button-secondary" style="flex: 1;">
+                        <i class="fas fa-copy"></i> Duplicate
+                    </button>
+                </div>
+            `;
+            
+            // Add event listeners to parameter controls
+            document.querySelectorAll('.sensor-param').forEach(slider => {
+                slider.addEventListener('input', function() {
+                    const param = this.dataset.param;
+                    const input = document.querySelector(`.sensor-param-input[data-param="${param}"]`);
+                    const value = parseFloat(this.value);
+                    input.value = param === 'frequency' ? value.toFixed(0) : value.toFixed(3);
+                });
+            });
+            
+            document.querySelectorAll('.sensor-param-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    const param = this.dataset.param;
+                    const slider = document.querySelector(`.sensor-param[data-param="${param}"]`);
+                    let value = parseFloat(this.value);
+                    if (isNaN(value)) value = parseFloat(slider.min);
+                    slider.value = value;
+                });
+            });
+        }
+        
+        // Make functions available globally for button clicks
+        window.updateSensorParams = function() {
+            if (!selectedSensor) return;
+            
+            // Get updated parameters
+            const params = { ...selectedSensor.params };
+            document.querySelectorAll('.sensor-param').forEach(slider => {
+                const param = slider.dataset.param;
+                let value = parseFloat(slider.value);
+                if (param === 'frequency') {
+                    params[param] = value * 1e6; // Convert MHz to Hz
+                } else {
+                    params[param] = value;
+                }
+            });
+            
+            // Update sensor
+            selectedSensor.params = params;
+            const results = calculateCoverage(params);
+            selectedSensor.radius = results.coverage * 1000;
+            selectedSensor.circle.setRadius(selectedSensor.radius);
+            
+            // Update display
+            updateSensorDisplay(selectedSensor);
+            
+            alert("Sensor parameters updated!");
+        };
+        
+        window.duplicateSensor = function() {
+            if (!selectedSensor) return;
+            
+            // Create new sensor with same parameters but slightly offset
+            const newLat = selectedSensor.lat + (Math.random() - 0.5) * 0.1;
+            const newLng = selectedSensor.lng + (Math.random() - 0.5) * 0.1;
+            
+            addSensor(newLat, newLng, selectedSensor.type, {
+                ...selectedSensor.params,
+                name: `${sensorTypes[selectedSensor.type].name} Copy`
+            });
+            
+            alert("Sensor duplicated!");
+        };
+        
+        function calculateCoverage(params) {
+            const sensor = sensorTypes[currentSensorType];
+            
+            // Horizon Distance
             const horizonDistM = Math.sqrt(2 * CONSTANTS.earthRadius) * 
-                                (Math.sqrt(parameters.transmitterHeight) + Math.sqrt(parameters.sensorHeight));
+                                (Math.sqrt(params.transmitterHeight) + Math.sqrt(params.sensorHeight));
             const horizonDistKm = horizonDistM / 1000;
             
-            // 2. Path Loss Distance (km)
-            const txPowerDbm = 10 * Math.log10(parameters.transmitterPowerW) + 30;
+            // Path Loss Distance
+            const txPowerDbm = 10 * Math.log10(params.transmitterPowerW) + 30;
             const rxSensitivity = sensor.sensitivity;
-            const frequencyHz = parameters.frequency;
+            const frequencyHz = params.frequency;
             
-            // Maximum allowed path loss
             const maxPathLossDb = txPowerDbm - rxSensitivity;
-            
-            // Solve for distance using Free Space Path Loss formula
             const c = CONSTANTS.speedOfLight;
             const term1 = 20 * Math.log10(frequencyHz);
             const term2 = 20 * Math.log10((4 * Math.PI) / c);
@@ -920,7 +1231,7 @@
             const pathLossDistM = Math.pow(10, (maxPathLossDb - term1 - term2) / 20);
             const pathLossDistKm = pathLossDistM / 1000;
             
-            // 3. Coverage radius is the minimum of the two
+            // Coverage radius
             const coverageRadiusKm = Math.min(horizonDistKm, pathLossDistKm);
             
             return {
@@ -932,230 +1243,78 @@
             };
         }
         
-        function calculateAndDisplayCoverage() {
-            const results = calculateCoverage();
+        function calculateTerrainAdjustedCoverage(sensor) {
+            // Simulated terrain adjustment (in real app, you'd fetch elevation data)
+            const baseResults = calculateCoverage(sensor.params);
             
-            // Update display
-            horizonDistance.textContent = results.horizon.toFixed(2) + " km";
-            pathLossDistance.textContent = results.pathLoss.toFixed(2) + " km";
-            coverageRadiusResult.textContent = results.coverage.toFixed(1) + " km";
+            // Simulate terrain factor (0.5 to 1.5 based on "roughness")
+            const terrainRoughness = Math.random() * 1.0 + 0.5;
+            sensor.terrainFactor = terrainRoughness;
+            sensor.terrainAdjusted = true;
             
-            // Update limiting factor
-            if (results.limitingFactor === "horizon") {
-                limitingText.textContent = "Horizon distance is the limiting factor (earth curvature)";
-            } else {
-                limitingText.textContent = "Path loss is the limiting factor (signal attenuation)";
-            }
-            
-            return results.coverage * 1000; // Return in meters
+            return {
+                ...baseResults,
+                coverage: baseResults.coverage * terrainRoughness,
+                terrainFactor: terrainRoughness
+            };
         }
         
-        // Add sensor on map click
-        let isAddingSensor = false;
-        
-        addSensorBtn.addEventListener('click', function() {
-            isAddingSensor = true;
-            this.innerHTML = '<i class="fas fa-crosshairs"></i> Click on Map to Place Sensor';
-            this.style.background = sensorTypes[currentSensorType].borderColor;
+        function showTerrainProfile(sensor) {
+            const chartEl = document.getElementById('elevationChart');
+            const canvas = document.getElementById('elevationCanvas');
+            chartEl.classList.add('active');
             
-            // Change cursor
-            map.getContainer().style.cursor = 'crosshair';
+            // Simulated elevation data
+            const distances = Array.from({length: 20}, (_, i) => i * (sensor.radius / 1000 / 20));
+            const elevations = distances.map(d => 
+                Math.sin(d * 0.5) * 200 + Math.cos(d * 0.2) * 100 + 50
+            );
             
-            // Temporarily listen for click
-            const clickHandler = function(e) {
-                if (isAddingSensor) {
-                    addSensor(e.latlng.lat, e.latlng.lng, currentSensorType);
-                    isAddingSensor = false;
-                    addSensorBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Click Map to Add Sensor';
-                    addSensorBtn.style.background = "#4c6ef5";
-                    map.getContainer().style.cursor = '';
-                    map.off('click', clickHandler);
-                }
-            };
+            if (elevationChart) {
+                elevationChart.destroy();
+            }
             
-            map.on('click', clickHandler);
-        });
-        
-        // Generate random European locations
-        function getRandomEuropeanLocation() {
-            // Europe bounding box
-            const europeBounds = {
-                minLat: 35.0,
-                maxLat: 71.0,
-                minLng: -25.0,
-                maxLng: 40.0
-            };
-            
-            // Avoid water areas (simplified)
-            const avoidWater = [
-                // North Atlantic
-                { lat: [55, 71], lng: [-25, -10] },
-                // Mediterranean Sea (center)
-                { lat: [35, 40], lng: [0, 25] },
-                // Black Sea
-                { lat: [41, 47], lng: [28, 40] },
-                // Baltic Sea
-                { lat: [54, 65], lng: [10, 30] }
-            ];
-            
-            let lat, lng, inWater;
-            let attempts = 0;
-            
-            do {
-                inWater = false;
-                lat = europeBounds.minLat + Math.random() * (europeBounds.maxLat - europeBounds.minLat);
-                lng = europeBounds.minLng + Math.random() * (europeBounds.maxLng - europeBounds.minLng);
-                
-                // Check if in water areas
-                for (const area of avoidWater) {
-                    if (lat >= area.lat[0] && lat <= area.lat[1] && 
-                        lng >= area.lng[0] && lng <= area.lng[1]) {
-                        inWater = true;
-                        break;
+            const ctx = canvas.getContext('2d');
+            elevationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: distances.map(d => d.toFixed(1)),
+                    datasets: [{
+                        label: 'Elevation (m)',
+                        data: elevations,
+                        borderColor: '#4c6ef5',
+                        backgroundColor: 'rgba(76, 110, 245, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => `Elevation: ${ctx.parsed.y.toFixed(0)}m at ${ctx.label}km`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Distance from Sensor (km)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Elevation (m)'
+                            },
+                            beginAtZero: true
+                        }
                     }
                 }
-                
-                attempts++;
-                // Ensure we don't get stuck in infinite loop
-                if (attempts > 100) break;
-            } while (inWater);
-            
-            return { lat, lng };
-        }
-        
-        // Add random European sensors
-        function addRandomEuropeanSensors() {
-            // Clear existing sensors
-            sensors.forEach(sensor => {
-                map.removeLayer(sensor.marker);
-                map.removeLayer(sensor.circle);
-            });
-            sensors = [];
-            
-            // Add one of each sensor type in random European locations
-            const sensorTypesList = ['qb100', 'qb010', 'smartphone'];
-            
-            sensorTypesList.forEach(type => {
-                const location = getRandomEuropeanLocation();
-                addSensor(location.lat, location.lng, type);
-            });
-            
-            // Center map on the sensors
-            if (sensors.length > 0) {
-                const group = new L.featureGroup(sensors.map(s => s.marker));
-                map.fitBounds(group.getBounds().pad(0.5));
-            }
-        }
-        
-        // Randomize button
-        randomizeBtn.addEventListener('click', function() {
-            addRandomEuropeanSensors();
-        });
-        
-        function addSensor(lat, lng, sensorType) {
-            const sensor = sensorTypes[sensorType];
-            const results = calculateCoverage(sensorType);
-            const coverageRadiusM = results.coverage * 1000;
-            
-            // Create sensor marker
-            const marker = L.circleMarker([lat, lng], {
-                radius: 10,
-                fillColor: sensor.markerColor,
-                color: "#2d3748",
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 1
-            }).addTo(map);
-            
-            // Create coverage circle
-            const circle = L.circle([lat, lng], {
-                color: sensor.borderColor,
-                fillColor: sensor.color,
-                fillOpacity: 0.25,
-                weight: 2,
-                radius: coverageRadiusM
-            }).addTo(map);
-            
-            // Bind popup with info
-            const popupContent = `
-                <div style="padding: 10px; min-width: 280px;">
-                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                        <i class="${sensor.icon}" style="color: ${sensor.borderColor}; margin-right: 10px; font-size: 20px;"></i>
-                        <div>
-                            <strong style="font-size: 16px;">${sensor.name}</strong>
-                            <div style="font-size: 12px; color: #718096;">${sensor.description}</div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span style="color: #4a5568;"><i class="fas fa-map-marker-alt"></i> Location:</span>
-                            <span>${lat.toFixed(4)}°, ${lng.toFixed(4)}°</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span style="color: #4a5568;"><i class="fas fa-bullseye"></i> Coverage Radius:</span>
-                            <strong>${results.coverage.toFixed(1)} km</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span style="color: #4a5568;"><i class="fas fa-tachometer-alt"></i> Sensitivity:</span>
-                            <span>${sensor.sensitivity} dBm</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span style="color: #4a5568;"><i class="fas fa-wifi"></i> Frequency:</span>
-                            <span>${(parameters.frequency / 1e9).toFixed(2)} GHz</span>
-                        </div>
-                        ${sensorType === 'smartphone' ? `
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: #4a5568;"><i class="fas fa-percentage"></i> Jammer/Signal Ratio:</span>
-                            <span>${sensor.jammerRatio} dB</span>
-                        </div>
-                        ` : ''}
-                    </div>
-                    
-                    <div style="background: #e8f4fd; padding: 10px; border-radius: 6px; margin: 10px 0;">
-                        <div style="font-size: 12px; color: #4299e1; margin-bottom: 5px;">
-                            <i class="fas fa-info-circle"></i> Detection Details:
-                        </div>
-                        <div style="font-size: 11px; color: #718096;">
-                            ${sensor.notes}
-                        </div>
-                    </div>
-                    
-                    <div style="font-size: 12px; color: #e53e3e; margin-top: 10px;">
-                        <i class="fas fa-trash-alt"></i> Click to remove this sensor
-                    </div>
-                </div>
-            `;
-            
-            marker.bindPopup(popupContent);
-            circle.bindPopup(popupContent);
-            
-            // Store sensor
-            const sensorObj = {
-                id: Date.now() + Math.random(),
-                lat: lat,
-                lng: lng,
-                type: sensorType,
-                radius: coverageRadiusM,
-                marker: marker,
-                circle: circle,
-                timestamp: new Date().toISOString()
-            };
-            
-            sensors.push(sensorObj);
-            updateSensorCounts();
-            
-            // Remove sensor on marker click
-            marker.on('click', function(e) {
-                e.originalEvent.preventDefault();
-                e.originalEvent.stopPropagation();
-                removeSensor(sensorObj);
-            });
-            
-            circle.on('click', function(e) {
-                e.originalEvent.preventDefault();
-                e.originalEvent.stopPropagation();
-                removeSensor(sensorObj);
             });
         }
         
@@ -1163,28 +1322,16 @@
             map.removeLayer(sensor.marker);
             map.removeLayer(sensor.circle);
             sensors = sensors.filter(s => s.id !== sensor.id);
+            if (selectedSensor && selectedSensor.id === sensor.id) {
+                selectedSensor = null;
+                currentSensorInfo.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #64748b;">
+                        <i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                        <div>Select a sensor to edit its parameters</div>
+                    </div>
+                `;
+            }
             updateSensorCounts();
-        }
-        
-        function updateAllSensors() {
-            sensors.forEach(sensor => {
-                const sensorType = sensorTypes[sensor.type];
-                const results = calculateCoverage(sensor.type);
-                const coverageRadiusM = results.coverage * 1000;
-                
-                // Update radius
-                sensor.circle.setRadius(coverageRadiusM);
-                
-                // Update colors
-                sensor.circle.setStyle({
-                    color: sensorType.borderColor,
-                    fillColor: sensorType.color
-                });
-                
-                sensor.marker.setStyle({
-                    fillColor: sensorType.markerColor
-                });
-            });
         }
         
         function updateSensorCounts() {
@@ -1192,69 +1339,98 @@
             const qb010Count = sensors.filter(s => s.type === 'qb010').length;
             const smartphoneCount = sensors.filter(s => s.type === 'smartphone').length;
             
-            // Update individual counters
             qb100CountEl.textContent = qb100Count;
             qb010CountEl.textContent = qb010Count;
             smartphoneCountEl.textContent = smartphoneCount;
-            
-            // Update total counter
             sensorCount.textContent = sensors.length;
         }
         
-        // Clear all sensors
-        clearBtn.addEventListener('click', function() {
-            if (sensors.length > 0 && confirm("Are you sure you want to remove all sensors?")) {
-                sensors.forEach(sensor => {
-                    map.removeLayer(sensor.marker);
-                    map.removeLayer(sensor.circle);
-                });
-                sensors = [];
-                updateSensorCounts();
-            }
-        });
-        
-        // Export sensor data
-        exportBtn.addEventListener('click', function() {
-            if (sensors.length === 0) {
-                alert("No sensors to export. Please add some sensors first.");
+        function analyzeCoverageGaps() {
+            if (sensors.length < 2) {
+                alert("Need at least 2 sensors to analyze coverage gaps");
                 return;
             }
             
-            // Create export data
+            // Simple gap analysis (in real app, this would be more sophisticated)
+            let gaps = [];
+            for (let i = 0; i < sensors.length; i++) {
+                for (let j = i + 1; j < sensors.length; j++) {
+                    const s1 = sensors[i];
+                    const s2 = sensors[j];
+                    const distance = calculateDistance(s1.lat, s1.lng, s2.lat, s2.lng);
+                    const gap = distance - (s1.radius + s2.radius);
+                    
+                    if (gap > 0) {
+                        gaps.push({
+                            sensors: [s1.name, s2.name],
+                            distance: distance / 1000,
+                            gap: gap / 1000,
+                            midPoint: calculateMidPoint(s1, s2)
+                        });
+                    }
+                }
+            }
+            
+            if (gaps.length === 0) {
+                alert("✅ Perfect coverage! All sensors overlap.");
+            } else {
+                let message = `Found ${gaps.length} coverage gaps:\n\n`;
+                gaps.forEach((gap, idx) => {
+                    message += `${idx + 1}. Between ${gap.sensors[0]} and ${gap.sensors[1]}\n`;
+                    message += `   Distance: ${gap.distance.toFixed(1)}km, Gap: ${gap.gap.toFixed(1)}km\n\n`;
+                });
+                message += "Consider adding sensors in the gap areas.";
+                alert(message);
+            }
+        }
+        
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371000; // Earth radius in meters
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+        
+        function calculateMidPoint(s1, s2) {
+            return {
+                lat: (s1.lat + s2.lat) / 2,
+                lng: (s1.lng + s2.lng) / 2
+            };
+        }
+        
+        function exportDeploymentPlan() {
             const exportData = {
-                project: "EGIPRON RFI Sensor Deployment",
+                project: "EGIPRON RFI Sensor Deployment v3.0",
                 timestamp: new Date().toISOString(),
-                parameters: {
-                    transmitterHeight: parameters.transmitterHeight,
-                    transmitterPowerW: parameters.transmitterPowerW,
-                    sensorHeight: parameters.sensorHeight,
-                    frequency: parameters.frequency,
-                    transmitterPowerDbm: 10 * Math.log10(parameters.transmitterPowerW) + 30
-                },
+                terrainEnabled: terrainEnabled,
                 sensors: sensors.map(sensor => ({
+                    id: sensor.id,
+                    name: sensor.name,
                     type: sensor.type,
-                    name: sensorTypes[sensor.type].name,
                     latitude: sensor.lat,
                     longitude: sensor.lng,
+                    parameters: sensor.params,
                     coverageRadiusKm: (sensor.radius / 1000).toFixed(1),
-                    sensitivity: sensorTypes[sensor.type].sensitivity,
-                    timestamp: sensor.timestamp
+                    terrainFactor: sensor.terrainFactor,
+                    createdAt: sensor.createdAt
                 }))
             };
             
-            // Create and download JSON file
             const dataStr = JSON.stringify(exportData, null, 2);
             const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const fileName = `egipron-deployment-${new Date().toISOString().split('T')[0]}.json`;
             
-            const exportFileDefaultName = `egipron-deployment-${new Date().toISOString().split('T')[0]}.json`;
+            const link = document.createElement('a');
+            link.setAttribute('href', dataUri);
+            link.setAttribute('download', fileName);
+            link.click();
             
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            alert(`Exported ${sensors.length} sensors to ${exportFileDefaultName}`);
-        });
+            alert(`Exported ${sensors.length} sensors to ${fileName}`);
+        }
     </script>
 </body>
 </html>
