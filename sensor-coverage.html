@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RFI Sensor Coverage Simulator - Simple Mockup</title>
+    <title>EGIPRON RFI Sensor Planner - Coverage Simulation Tool</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -13,8 +14,9 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             overflow: hidden;
+            background: #f5f7fa;
         }
         
         #map {
@@ -31,141 +33,389 @@
             top: 20px;
             left: 20px;
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
             z-index: 1000;
-            width: 320px;
+            width: 400px;
             max-height: 90vh;
             overflow-y: auto;
+            border: 1px solid #e1e5e9;
         }
         
         .control-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .control-group:last-child {
+            border-bottom: none;
         }
         
         h1 {
-            color: #2c3e50;
-            font-size: 22px;
-            margin-bottom: 10px;
+            color: #1a365d;
+            font-size: 24px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-weight: 700;
         }
         
-        h1 i {
-            color: #3498db;
+        .subtitle {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        h2 {
+            font-size: 16px;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        h2 i {
+            color: #4c6ef5;
         }
         
         label {
             display: block;
             font-weight: 600;
-            color: #34495e;
-            margin-bottom: 8px;
+            color: #4a5568;
+            margin-bottom: 10px;
             font-size: 14px;
+        }
+        
+        .sensor-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .sensor-btn {
+            padding: 12px 8px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s;
+            color: #4a5568;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .sensor-btn:hover {
+            background: #edf2f7;
+        }
+        
+        .sensor-btn.active {
+            color: white;
+            border-color: transparent;
+        }
+        
+        .sensor-btn.qb100.active {
+            background: #4299e1;
+        }
+        
+        .sensor-btn.qb010.active {
+            background: #38a169;
+        }
+        
+        .sensor-btn.smartphone.active {
+            background: #ed8936;
+        }
+        
+        .sensor-icon {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+        
+        .sensitivity-badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.2);
+            margin-top: 2px;
+        }
+        
+        .parameter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .parameter-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .parameter-value.highlight {
+            background: #fff3cd;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #856404;
+            border: 1px solid #ffeaa7;
         }
         
         input[type="range"] {
             width: 100%;
-            margin: 8px 0;
+            margin: 12px 0;
+            height: 6px;
+            border-radius: 3px;
+            background: #e2e8f0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4c6ef5;
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         
         .value-display {
             display: flex;
             justify-content: space-between;
             font-size: 13px;
-            color: #7f8c8d;
+            color: #718096;
+            margin-top: 5px;
         }
         
-        #coverageRadius {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            padding: 12px;
-            font-size: 14px;
-            width: 100%;
-        }
-        
-        .parameter-slider {
-            margin: 15px 0;
-        }
-        
-        .color-picker {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+        .results-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 18px;
             margin-top: 10px;
+            border-left: 4px solid #4c6ef5;
         }
         
-        .color-option {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .result-label {
+            color: #4a5568;
+        }
+        
+        .result-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .limiting-factor {
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #ffeaa7;
+            font-size: 14px;
+        }
+        
+        .limiting-factor i {
+            color: #e53e3e;
+            margin-right: 8px;
+        }
+        
+        .advanced-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             cursor: pointer;
-            border: 3px solid transparent;
-            transition: transform 0.2s;
+            padding: 10px 0;
+            color: #4c6ef5;
+            font-weight: 600;
         }
         
-        .color-option:hover {
-            transform: scale(1.1);
+        .advanced-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
         }
         
-        .color-option.selected {
-            border-color: #2c3e50;
+        .advanced-content.expanded {
+            max-height: 300px;
+            margin-top: 15px;
+        }
+        
+        .jammer-ratio {
+            background: #fff8e1;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #ffe082;
+            font-size: 13px;
+        }
+        
+        .jammer-ratio i {
+            color: #f59e0b;
+            margin-right: 8px;
         }
         
         button {
-            background: #3498db;
+            background: #4c6ef5;
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
+            padding: 14px 20px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             width: 100%;
-            margin-top: 10px;
-            transition: background 0.3s;
+            margin-top: 15px;
+            transition: all 0.2s;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         
         button:hover {
-            background: #2980b9;
+            background: #3b5bdb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(76, 110, 245, 0.3);
+        }
+        
+        .button-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+            margin-top: 10px;
+        }
+        
+        .button-secondary:hover {
+            background: #cbd5e0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
         #sensorInfo {
-            background: #f8f9fa;
-            padding: 15px;
+            background: #f8fafc;
+            padding: 18px;
             border-radius: 8px;
             margin-top: 20px;
             font-size: 13px;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid #4c6ef5;
         }
         
         .info-line {
             display: flex;
             justify-content: space-between;
-            margin: 5px 0;
+            margin: 6px 0;
+            color: #4a5568;
         }
         
         .sensor-counter {
             position: absolute;
             top: 20px;
             right: 20px;
-            background: #2c3e50;
+            background: rgba(26, 54, 93, 0.95);
             color: white;
-            padding: 10px 15px;
-            border-radius: 6px;
+            padding: 12px 20px;
+            border-radius: 8px;
             z-index: 1000;
             font-weight: 600;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         
         .instructions {
             font-size: 13px;
-            color: #7f8c8d;
+            color: #718096;
             font-style: italic;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            line-height: 1.5;
+        }
+        
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            font-size: 13px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .sensor-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
             margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            font-size: 16px;
+            color: #2d3748;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            #controls {
+                width: calc(100% - 40px);
+                padding: 20px;
+            }
+            
+            .sensor-counter {
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .sensor-selector {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -174,151 +424,373 @@
     
     <div id="controls">
         <h1>
-            📡 RFI Sensor Coverage Simulator
+            <i class="fas fa-satellite-dish"></i>
+            EGIPRON RFI Sensor Planner
         </h1>
-        
-        <div class="control-group">
-            <label for="coverageRadius">Coverage Radius (meters)</label>
-            <input type="range" id="coverageRadius" min="100" max="5000" value="1000" step="100">
-            <div class="value-display">
-                <span>100m</span>
-                <span id="radiusValue">1000m</span>
-                <span>5000m</span>
-            </div>
+        <div class="subtitle">
+            Simulate coverage areas for QB100, QB010, and Smartphone-based RFI detection sensors.
+            Click on the map to place sensors and visualize their detection range.
         </div>
         
         <div class="control-group">
-            <label>Coverage Color</label>
-            <div class="color-picker">
-                <div class="color-option selected" style="background: rgba(52, 152, 219, 0.3);" data-color="rgba(52, 152, 219, 0.3)"></div>
-                <div class="color-option" style="background: rgba(46, 204, 113, 0.3);" data-color="rgba(46, 204, 113, 0.3)"></div>
-                <div class="color-option" style="background: rgba(155, 89, 182, 0.3);" data-color="rgba(155, 89, 182, 0.3)"></div>
-                <div class="color-option" style="background: rgba(241, 196, 15, 0.3);" data-color="rgba(241, 196, 15, 0.3)"></div>
-            </div>
-        </div>
-        
-        <div class="control-group">
-            <label>Sensor Parameters</label>
-            <div class="parameter-slider">
-                <div class="value-display">
-                    <span>Frequency: <span id="freqValue">900 MHz</span></span>
+            <h2><i class="fas fa-microchip"></i> Sensor Type</h2>
+            <div class="sensor-selector">
+                <div class="sensor-btn qb100 active" data-type="qb100">
+                    <div class="sensor-icon"><i class="fas fa-satellite"></i></div>
+                    <div>QB100</div>
+                    <div class="sensitivity-badge">-125 dBm</div>
                 </div>
-                <input type="range" id="frequency" min="100" max="3000" value="900" step="100">
+                <div class="sensor-btn qb010" data-type="qb010">
+                    <div class="sensor-icon"><i class="fas fa-wifi"></i></div>
+                    <div>QB010</div>
+                    <div class="sensitivity-badge">-95 dBm</div>
+                </div>
+                <div class="sensor-btn smartphone" data-type="smartphone">
+                    <div class="sensor-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <div>Smartphone</div>
+                    <div class="sensitivity-badge">-100 dBm</div>
+                </div>
             </div>
             
-            <div class="parameter-slider">
-                <div class="value-display">
-                    <span>Height: <span id="heightValue">10m</span></span>
+            <div class="sensor-stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="qb100Count">0</div>
+                    <div class="stat-label">QB100</div>
                 </div>
-                <input type="range" id="height" min="1" max="100" value="10" step="1">
+                <div class="stat-box">
+                    <div class="stat-value" id="qb010Count">0</div>
+                    <div class="stat-label">QB010</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="smartphoneCount">0</div>
+                    <div class="stat-label">Smartphone</div>
+                </div>
             </div>
         </div>
         
-        <button id="clearBtn">🗑️ Clear All Sensors</button>
+        <div class="control-group">
+            <h2><i class="fas fa-sliders-h"></i> Jammer Parameters</h2>
+            
+            <div class="parameter-row">
+                <span>Transmitter Height</span>
+                <span class="parameter-value">10.0 m</span>
+            </div>
+            
+            <div class="parameter-row">
+                <span>Transmitter Power (EIRP)</span>
+                <span class="parameter-value">1.000 W</span>
+            </div>
+            
+            <div class="parameter-row">
+                <span>Transmitter Power</span>
+                <span class="parameter-value">30.00 dBm</span>
+            </div>
+            
+            <label for="frequency">Frequency (1.58 GHz fixed)</label>
+            <input type="range" id="frequency" min="1000" max="3000" value="1580" step="10" disabled>
+            <div class="value-display">
+                <span>1.0 GHz</span>
+                <span id="freqValue">1.58 GHz</span>
+                <span>3.0 GHz</span>
+            </div>
+            
+            <div class="advanced-toggle" id="advancedToggle">
+                <span><i class="fas fa-cogs"></i> Advanced Settings</span>
+                <span id="advancedIcon"><i class="fas fa-chevron-down"></i></span>
+            </div>
+            
+            <div class="advanced-content" id="advancedContent">
+                <div class="jammer-ratio">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="smartphoneNote">Smartphone sensors assume -125 dBm GNSS signal and Jammer/Signal ratio of 25 dB</span>
+                </div>
+                
+                <div class="parameter-row">
+                    <span>Jammer/Signal Ratio</span>
+                    <span class="parameter-value">25 dB</span>
+                </div>
+                
+                <div class="parameter-row">
+                    <span>GNSS Signal Level</span>
+                    <span class="parameter-value">-125 dBm</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <h2><i class="fas fa-calculator"></i> Coverage Results</h2>
+            <div class="results-box">
+                <div class="result-row">
+                    <span class="result-label">Horizon Distance</span>
+                    <span class="result-value" id="horizonDistance">22.58 km</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Path Loss Distance</span>
+                    <span class="result-value" id="pathLossDistance">26.91 km</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Coverage Radius</span>
+                    <span class="result-value" id="coverageRadiusResult">22.5 km</span>
+                </div>
+            </div>
+            
+            <div class="limiting-factor" id="limitingFactor">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="limitingText">Horizon distance is the limiting factor</span>
+            </div>
+        </div>
+        
+        <button id="addSensorBtn">
+            <i class="fas fa-plus-circle"></i> Click Map to Add Sensor
+        </button>
+        
+        <button class="button-secondary" id="clearBtn">
+            <i class="fas fa-trash-alt"></i> Clear All Sensors
+        </button>
+        
+        <button class="button-secondary" id="exportBtn">
+            <i class="fas fa-download"></i> Export Sensor Data
+        </button>
         
         <div id="sensorInfo">
-            <div class="info-line"><strong>Instructions:</strong></div>
-            <div class="info-line">1. Click anywhere on the map to place a sensor</div>
-            <div class="info-line">2. Adjust radius with the slider</div>
-            <div class="info-line">3. Change coverage color as needed</div>
-            <div class="info-line">4. Each click adds a new sensor</div>
+            <div class="info-line"><strong><i class="fas fa-info-circle"></i> Instructions</strong></div>
+            <div class="info-line">• Select sensor type (QB100, QB010, or Smartphone)</div>
+            <div class="info-line">• Click button, then click map to place sensor</div>
+            <div class="info-line">• Coverage calculated automatically</div>
+            <div class="info-line">• Click on any sensor to remove it</div>
         </div>
         
         <div class="instructions">
-            This is a mockup. Real coverage depends on terrain, buildings, frequency, and antenna characteristics.
+            Note: Calculations assume free-space propagation. Real-world performance varies with terrain, buildings, and atmospheric conditions.
+            Smartphone detection uses post-correlation C/N0 drop method.
         </div>
     </div>
     
     <div class="sensor-counter">
-        Sensors: <span id="sensorCount">0</span>
+        <i class="fas fa-satellite-dish"></i> Total Sensors: <span id="sensorCount">0</span>
+    </div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgba(66, 153, 225, 0.3); border-color: #4299e1;"></div>
+            <span>QB100 Coverage</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgba(56, 161, 105, 0.3); border-color: #38a169;"></div>
+            <span>QB010 Coverage</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: rgba(237, 137, 54, 0.3); border-color: #ed8936;"></div>
+            <span>Smartphone Coverage</span>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
         // Initialize map
-        const map = L.map('map').setView([40.7128, -74.0060], 12); // New York default
+        const map = L.map('map').setView([48.8566, 2.3522], 6); // Paris default
         
         // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
+            attribution: '© OpenStreetMap contributors | EGIPRON RFI Planner',
             maxZoom: 19
         }).addTo(map);
         
+        // EGIPRON Sensor Parameters
+        const sensorTypes = {
+            qb100: {
+                name: "QB100 Professional",
+                sensitivity: -125, // dBm
+                notes: "IQ PSD processing",
+                color: "rgba(66, 153, 225, 0.3)",
+                borderColor: "#4299e1",
+                markerColor: "#4299e1",
+                icon: "fas fa-satellite",
+                description: "High-sensitivity professional sensor"
+            },
+            qb010: {
+                name: "QB010",
+                sensitivity: -95, // dBm
+                notes: "IQ PSD processing",
+                color: "rgba(56, 161, 105, 0.3)",
+                borderColor: "#38a169",
+                markerColor: "#38a169",
+                icon: "fas fa-wifi",
+                description: "Standard RFI detection sensor"
+            },
+            smartphone: {
+                name: "Smartphone",
+                sensitivity: -100, // dBm
+                notes: "Post-correlation based on C/N0 drop",
+                color: "rgba(237, 137, 54, 0.3)",
+                borderColor: "#ed8936",
+                markerColor: "#ed8936",
+                icon: "fas fa-mobile-alt",
+                description: "Smartphone-based detection",
+                gnssSignal: -125, // dBm
+                jammerRatio: 25 // dB
+            }
+        };
+        
+        // Fixed parameters (from your data)
+        const FIXED_PARAMS = {
+            transmitterHeight: 10.0, // meters
+            transmitterPowerW: 1.000, // Watts
+            transmitterPowerDbm: 30.00, // dBm (calculated: 10*log10(1W) + 30)
+            frequency: 1.58e9, // Hz (1.58 GHz)
+            earthRadius: 6372507, // meters
+            speedOfLight: 299792458 // m/s
+        };
+        
         // Store sensors
         let sensors = [];
-        let coverageColor = 'rgba(52, 152, 219, 0.3)';
-        let coverageBorderColor = 'rgba(52, 152, 219, 0.6)';
+        let currentSensorType = 'qb100';
         
         // DOM elements
-        const radiusSlider = document.getElementById('coverageRadius');
-        const radiusValue = document.getElementById('radiusValue');
-        const frequencySlider = document.getElementById('frequency');
-        const freqValue = document.getElementById('freqValue');
-        const heightSlider = document.getElementById('height');
-        const heightValue = document.getElementById('heightValue');
+        const sensorBtns = document.querySelectorAll('.sensor-btn');
+        const horizonDistance = document.getElementById('horizonDistance');
+        const pathLossDistance = document.getElementById('pathLossDistance');
+        const coverageRadiusResult = document.getElementById('coverageRadiusResult');
+        const limitingText = document.getElementById('limitingText');
         const clearBtn = document.getElementById('clearBtn');
+        const exportBtn = document.getElementById('exportBtn');
         const sensorCount = document.getElementById('sensorCount');
-        const colorOptions = document.querySelectorAll('.color-option');
+        const addSensorBtn = document.getElementById('addSensorBtn');
+        const freqValue = document.getElementById('freqValue');
+        const advancedToggle = document.getElementById('advancedToggle');
+        const advancedContent = document.getElementById('advancedContent');
+        const advancedIcon = document.getElementById('advancedIcon');
+        const smartphoneNote = document.getElementById('smartphoneNote');
         
-        // Update radius display
-        radiusSlider.addEventListener('input', function() {
-            radiusValue.textContent = this.value + 'm';
-            updateAllCoverage();
+        // Counter elements
+        const qb100CountEl = document.getElementById('qb100Count');
+        const qb010CountEl = document.getElementById('qb010Count');
+        const smartphoneCountEl = document.getElementById('smartphoneCount');
+        
+        // Initialize
+        updateSensorType();
+        calculateAndDisplayCoverage();
+        
+        // Advanced toggle
+        advancedToggle.addEventListener('click', function() {
+            advancedContent.classList.toggle('expanded');
+            advancedIcon.innerHTML = advancedContent.classList.contains('expanded') ? 
+                '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
         });
         
-        // Update frequency display
-        frequencySlider.addEventListener('input', function() {
-            freqValue.textContent = this.value + ' MHz';
-            updateAllCoverage();
-        });
-        
-        // Update height display
-        heightSlider.addEventListener('input', function() {
-            heightValue.textContent = this.value + 'm';
-            updateAllCoverage();
-        });
-        
-        // Color picker
-        colorOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                // Remove selected class from all
-                colorOptions.forEach(opt => opt.classList.remove('selected'));
-                // Add to clicked
-                this.classList.add('selected');
-                // Update color
-                coverageColor = this.getAttribute('data-color');
-                // Update border color (darker version)
-                const rgb = coverageColor.match(/\d+/g);
-                coverageBorderColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.6)`;
-                updateAllCoverage();
+        // Sensor type selection
+        sensorBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                sensorBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentSensorType = this.getAttribute('data-type');
+                updateSensorType();
+                updateAllSensors();
             });
         });
         
-        // Clear all sensors
-        clearBtn.addEventListener('click', function() {
-            sensors.forEach(sensor => {
-                map.removeLayer(sensor.marker);
-                map.removeLayer(sensor.circle);
-            });
-            sensors = [];
-            updateSensorCount();
-        });
+        function updateSensorType() {
+            const sensor = sensorTypes[currentSensorType];
+            
+            // Update smartphone note
+            if (currentSensorType === 'smartphone') {
+                smartphoneNote.textContent = `Assumes ${sensor.gnssSignal} dBm GNSS signal and Jammer/Signal ratio of ${sensor.jammerRatio} dB`;
+            }
+            
+            calculateAndDisplayCoverage();
+        }
+        
+        // Calculate coverage based on EGIPRON formulas
+        function calculateCoverage() {
+            const sensor = sensorTypes[currentSensorType];
+            
+            // 1. Horizon Distance (km) = (√(2*Earth radius) * (√(Transmitter height) + √(Sensor height))) / 1000
+            const sensorHeight = 10; // meters (assuming sensor at same height)
+            const horizonDistM = Math.sqrt(2 * FIXED_PARAMS.earthRadius) * 
+                                (Math.sqrt(FIXED_PARAMS.transmitterHeight) + Math.sqrt(sensorHeight));
+            const horizonDistKm = horizonDistM / 1000;
+            
+            // 2. Path Loss Distance (km)
+            const txPowerDbm = FIXED_PARAMS.transmitterPowerDbm;
+            const rxSensitivity = sensor.sensitivity;
+            const frequencyHz = FIXED_PARAMS.frequency;
+            
+            // Maximum allowed path loss
+            const maxPathLossDb = txPowerDbm - rxSensitivity;
+            
+            // Solve for distance using Free Space Path Loss formula
+            const c = FIXED_PARAMS.speedOfLight;
+            const term1 = 20 * Math.log10(frequencyHz);
+            const term2 = 20 * Math.log10((4 * Math.PI) / c);
+            
+            const pathLossDistM = Math.pow(10, (maxPathLossDb - term1 - term2) / 20);
+            const pathLossDistKm = pathLossDistM / 1000;
+            
+            // 3. Coverage radius is the minimum of the two
+            const coverageRadiusKm = Math.min(horizonDistKm, pathLossDistKm);
+            
+            return {
+                horizon: horizonDistKm,
+                pathLoss: pathLossDistKm,
+                coverage: coverageRadiusKm,
+                limitingFactor: horizonDistKm < pathLossDistKm ? "horizon" : "pathLoss"
+            };
+        }
+        
+        function calculateAndDisplayCoverage() {
+            const results = calculateCoverage();
+            
+            // Update display
+            horizonDistance.textContent = results.horizon.toFixed(2) + " km";
+            pathLossDistance.textContent = results.pathLoss.toFixed(2) + " km";
+            coverageRadiusResult.textContent = results.coverage.toFixed(1) + " km";
+            
+            // Update limiting factor
+            if (results.limitingFactor === "horizon") {
+                limitingText.textContent = "Horizon distance is the limiting factor (earth curvature)";
+            } else {
+                limitingText.textContent = "Path loss is the limiting factor (signal attenuation)";
+            }
+            
+            return results.coverage * 1000; // Return in meters
+        }
         
         // Add sensor on map click
-        map.on('click', function(e) {
-            addSensor(e.latlng.lat, e.latlng.lng);
+        let isAddingSensor = false;
+        
+        addSensorBtn.addEventListener('click', function() {
+            isAddingSensor = true;
+            this.innerHTML = '<i class="fas fa-crosshairs"></i> Click on Map to Place Sensor';
+            this.style.background = sensorTypes[currentSensorType].borderColor;
+            
+            // Change cursor
+            map.getContainer().style.cursor = 'crosshair';
+            
+            // Temporarily listen for click
+            const clickHandler = function(e) {
+                if (isAddingSensor) {
+                    addSensor(e.latlng.lat, e.latlng.lng);
+                    isAddingSensor = false;
+                    addSensorBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Click Map to Add Sensor';
+                    addSensorBtn.style.background = "#4c6ef5";
+                    map.getContainer().style.cursor = '';
+                    map.off('click', clickHandler);
+                }
+            };
+            
+            map.on('click', clickHandler);
         });
         
         function addSensor(lat, lng) {
-            const radius = parseInt(radiusSlider.value);
-            const frequency = parseInt(frequencySlider.value);
-            const height = parseInt(heightSlider.value);
+            const sensorType = sensorTypes[currentSensorType];
+            const coverageRadiusM = calculateAndDisplayCoverage();
             
             // Create sensor marker
             const marker = L.circleMarker([lat, lng], {
-                radius: 8,
-                fillColor: coverageBorderColor.replace('0.6', '1'),
-                color: '#2c3e50',
+                radius: 10,
+                fillColor: sensorType.markerColor,
+                color: "#2d3748",
                 weight: 2,
                 opacity: 1,
                 fillOpacity: 1
@@ -326,21 +798,58 @@
             
             // Create coverage circle
             const circle = L.circle([lat, lng], {
-                color: coverageBorderColor,
-                fillColor: coverageColor,
-                fillOpacity: 0.3,
-                radius: radius
+                color: sensorType.borderColor,
+                fillColor: sensorType.color,
+                fillOpacity: 0.25,
+                weight: 2,
+                radius: coverageRadiusM
             }).addTo(map);
             
             // Bind popup with info
+            const results = calculateCoverage();
             const popupContent = `
-                <div style="padding: 5px;">
-                    <strong>RFI Sensor</strong><br>
-                    Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}<br>
-                    Coverage: ${radius}m radius<br>
-                    Frequency: ${frequency} MHz<br>
-                    Height: ${height}m<br>
-                    <small>Click to remove</small>
+                <div style="padding: 10px; min-width: 280px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <i class="${sensorType.icon}" style="color: ${sensorType.borderColor}; margin-right: 10px; font-size: 20px;"></i>
+                        <div>
+                            <strong style="font-size: 16px;">${sensorType.name}</strong>
+                            <div style="font-size: 12px; color: #718096;">${sensorType.description}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="color: #4a5568;"><i class="fas fa-map-marker-alt"></i> Location:</span>
+                            <span>${lat.toFixed(4)}°, ${lng.toFixed(4)}°</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="color: #4a5568;"><i class="fas fa-bullseye"></i> Coverage Radius:</span>
+                            <strong>${results.coverage.toFixed(1)} km</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span style="color: #4a5568;"><i class="fas fa-tachometer-alt"></i> Sensitivity:</span>
+                            <span>${sensorType.sensitivity} dBm</span>
+                        </div>
+                        ${currentSensorType === 'smartphone' ? `
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #4a5568;"><i class="fas fa-percentage"></i> Jammer/Signal Ratio:</span>
+                            <span>${sensorType.jammerRatio} dB</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div style="background: #e8f4fd; padding: 10px; border-radius: 6px; margin: 10px 0;">
+                        <div style="font-size: 12px; color: #4299e1; margin-bottom: 5px;">
+                            <i class="fas fa-info-circle"></i> Detection Details:
+                        </div>
+                        <div style="font-size: 11px; color: #718096;">
+                            ${sensorType.notes}
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 12px; color: #e53e3e; margin-top: 10px;">
+                        <i class="fas fa-trash-alt"></i> Click to remove this sensor
+                    </div>
                 </div>
             `;
             
@@ -349,17 +858,18 @@
             
             // Store sensor
             const sensor = {
+                id: Date.now() + Math.random(),
                 lat: lat,
                 lng: lng,
-                radius: radius,
-                frequency: frequency,
-                height: height,
+                type: currentSensorType,
+                radius: coverageRadiusM,
                 marker: marker,
-                circle: circle
+                circle: circle,
+                timestamp: new Date().toISOString()
             };
             
             sensors.push(sensor);
-            updateSensorCount();
+            updateSensorCounts();
             
             // Remove sensor on marker click
             marker.on('click', function(e) {
@@ -378,53 +888,120 @@
         function removeSensor(sensor) {
             map.removeLayer(sensor.marker);
             map.removeLayer(sensor.circle);
-            sensors = sensors.filter(s => s !== sensor);
-            updateSensorCount();
+            sensors = sensors.filter(s => s.id !== sensor.id);
+            updateSensorCounts();
         }
         
-        function updateAllCoverage() {
+        function updateAllSensors() {
             sensors.forEach(sensor => {
-                // Update radius
-                sensor.radius = parseInt(radiusSlider.value);
-                sensor.circle.setRadius(sensor.radius);
-                
-                // Update colors
-                sensor.circle.setStyle({
-                    color: coverageBorderColor,
-                    fillColor: coverageColor
-                });
-                
-                sensor.marker.setStyle({
-                    fillColor: coverageBorderColor.replace('0.6', '1')
-                });
-                
-                // Update popup with new values
-                const popupContent = `
-                    <div style="padding: 5px;">
-                        <strong>RFI Sensor</strong><br>
-                        Location: ${sensor.lat.toFixed(4)}, ${sensor.lng.toFixed(4)}<br>
-                        Coverage: ${sensor.radius}m radius<br>
-                        Frequency: ${frequencySlider.value} MHz<br>
-                        Height: ${heightSlider.value}m<br>
-                        <small>Click to remove</small>
-                    </div>
-                `;
-                
-                sensor.marker.getPopup().setContent(popupContent);
-                sensor.circle.getPopup().setContent(popupContent);
+                // Only update sensors of current type
+                if (sensor.type === currentSensorType) {
+                    const sensorType = sensorTypes[currentSensorType];
+                    const coverageRadiusM = calculateAndDisplayCoverage();
+                    
+                    // Update radius
+                    sensor.circle.setRadius(coverageRadiusM);
+                    
+                    // Update colors
+                    sensor.circle.setStyle({
+                        color: sensorType.borderColor,
+                        fillColor: sensorType.color
+                    });
+                    
+                    sensor.marker.setStyle({
+                        fillColor: sensorType.markerColor
+                    });
+                }
             });
         }
         
-        function updateSensorCount() {
+        function updateSensorCounts() {
+            const qb100Count = sensors.filter(s => s.type === 'qb100').length;
+            const qb010Count = sensors.filter(s => s.type === 'qb010').length;
+            const smartphoneCount = sensors.filter(s => s.type === 'smartphone').length;
+            
+            // Update individual counters
+            qb100CountEl.textContent = qb100Count;
+            qb010CountEl.textContent = qb010Count;
+            smartphoneCountEl.textContent = smartphoneCount;
+            
+            // Update total counter
             sensorCount.textContent = sensors.length;
+            
+            // Update counter with details
+            sensorCount.innerHTML = `${sensors.length} <span style="font-size: 12px; opacity: 0.8;">(${qb100Count}/QB100, ${qb010Count}/QB010, ${smartphoneCount}/Smartphone)</span>`;
         }
+        
+        // Clear all sensors
+        clearBtn.addEventListener('click', function() {
+            if (sensors.length > 0 && confirm("Are you sure you want to remove all sensors?")) {
+                sensors.forEach(sensor => {
+                    map.removeLayer(sensor.marker);
+                    map.removeLayer(sensor.circle);
+                });
+                sensors = [];
+                updateSensorCounts();
+            }
+        });
+        
+        // Export sensor data
+        exportBtn.addEventListener('click', function() {
+            if (sensors.length === 0) {
+                alert("No sensors to export. Please add some sensors first.");
+                return;
+            }
+            
+            // Create export data
+            const exportData = {
+                project: "EGIPRON RFI Sensor Deployment",
+                timestamp: new Date().toISOString(),
+                parameters: {
+                    transmitterHeight: FIXED_PARAMS.transmitterHeight,
+                    transmitterPowerW: FIXED_PARAMS.transmitterPowerW,
+                    frequency: FIXED_PARAMS.frequency
+                },
+                sensors: sensors.map(sensor => ({
+                    type: sensor.type,
+                    name: sensorTypes[sensor.type].name,
+                    latitude: sensor.lat,
+                    longitude: sensor.lng,
+                    coverageRadiusKm: (sensor.radius / 1000).toFixed(1),
+                    sensitivity: sensorTypes[sensor.type].sensitivity,
+                    timestamp: sensor.timestamp
+                }))
+            };
+            
+            // Create and download JSON file
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `egipron-sensors-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            alert(`Exported ${sensors.length} sensors to ${exportFileDefaultName}`);
+        });
+        
+        // Update frequency display
+        freqValue.textContent = (FIXED_PARAMS.frequency / 1e9).toFixed(2) + " GHz";
         
         // Add some default sensors for demo
         setTimeout(() => {
-            addSensor(40.7128, -74.0060); // NYC
-            addSensor(40.7589, -73.9851); // Times Square
-            addSensor(40.7489, -73.9680); // UN Building
-        }, 500);
+            // Add a QB100 in Paris
+            currentSensorType = 'qb100';
+            addSensor(48.8584, 2.2945); // Eiffel Tower area
+            
+            // Add a QB010 in Lyon
+            currentSensorType = 'qb010';
+            addSensor(45.7640, 4.8357); // Lyon
+            
+            // Add a Smartphone sensor in Marseille
+            currentSensorType = 'smartphone';
+            addSensor(43.2965, 5.3698); // Marseille
+        }, 1000);
     </script>
 </body>
 </html>
