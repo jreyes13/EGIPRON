@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EGIPRON RFI Sensor Planner v4.1 - Full Parameter Editing</title>
+    <title>EGIPRON RFI Sensor Planner v4.2 - Direct Placement</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
@@ -436,6 +436,18 @@
             box-shadow: 0 6px 20px rgba(56, 161, 105, 0.4);
         }
         
+        /* Active Placement Mode */
+        .placement-mode {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4); }
+            50% { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.6); }
+            100% { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4); }
+        }
+        
         /* Sensor Counter */
         .sensor-counter {
             position: absolute;
@@ -643,10 +655,6 @@
             background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
         }
         
-        .edit-mode:hover {
-            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-        }
-        
         /* Modal for Parameter Editing */
         .modal-overlay {
             position: fixed;
@@ -737,6 +745,39 @@
             font-size: 12px;
             color: #64748b;
         }
+        
+        /* Placement Instructions */
+        .placement-instruction {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(245, 158, 11, 0.95);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .placement-instruction.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        
+        /* Cursor Change for Placement */
+        .placement-cursor {
+            cursor: crosshair !important;
+        }
     </style>
 </head>
 <body>
@@ -753,6 +794,11 @@
         <button id="searchButton">
             <i class="fas fa-search"></i>
         </button>
+    </div>
+    
+    <!-- Placement Instruction -->
+    <div class="placement-instruction" id="placementInstruction">
+        <i class="fas fa-mouse-pointer"></i> Click anywhere on the map to place sensor
     </div>
     
     <!-- Controls Panel -->
@@ -1058,6 +1104,8 @@
             streets: document.getElementById('mapTypeStreets'),
             satellite: document.getElementById('mapTypeSatellite')
         };
+        const placementInstruction = document.getElementById('placementInstruction');
+        const addSensorBtn = document.getElementById('addSensorBtn');
         
         // Modal elements
         const editModal = document.getElementById('editModal');
@@ -1134,7 +1182,7 @@
             });
             
             // Action buttons
-            document.getElementById('addSensorBtn').addEventListener('click', startSensorPlacement);
+            addSensorBtn.addEventListener('click', startSensorPlacement);
             document.getElementById('randomizeBtn').addEventListener('click', randomizeSensors);
             document.getElementById('clearBtn').addEventListener('click', clearAllSensors);
             document.getElementById('analyzeBtn').addEventListener('click', analyzeNetwork);
@@ -1149,8 +1197,13 @@
             map.on('click', (e) => {
                 if (isAddingSensor) {
                     addSensor(e.latlng.lat, e.latlng.lng, currentSensorType);
-                    isAddingSensor = false;
-                    updateAddButton(false);
+                }
+            });
+            
+            // Escape key to cancel placement
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && isAddingSensor) {
+                    cancelPlacement();
                 }
             });
             
@@ -1307,19 +1360,31 @@
         function startSensorPlacement() {
             isAddingSensor = true;
             updateAddButton(true);
+            placementInstruction.classList.add('active');
+            map.getContainer().classList.add('placement-cursor');
             
-            // Show hint
-            alert("Click anywhere on the map to place a sensor. Click on existing sensor to edit.");
+            // Auto-cancel after 30 seconds
+            setTimeout(() => {
+                if (isAddingSensor) {
+                    cancelPlacement();
+                }
+            }, 30000);
+        }
+        
+        function cancelPlacement() {
+            isAddingSensor = false;
+            updateAddButton(false);
+            placementInstruction.classList.remove('active');
+            map.getContainer().classList.remove('placement-cursor');
         }
         
         function updateAddButton(adding) {
-            const btn = document.getElementById('addSensorBtn');
             if (adding) {
-                btn.innerHTML = '<i class="fas fa-crosshairs"></i> Click Map';
-                btn.style.background = 'linear-gradient(135deg, #38a169, #2f855a)';
+                addSensorBtn.innerHTML = '<i class="fas fa-crosshairs"></i> Click Map to Place';
+                addSensorBtn.classList.add('placement-mode');
             } else {
-                btn.innerHTML = '<i class="fas fa-plus"></i> Add Sensor';
-                btn.style.background = 'linear-gradient(135deg, #4c6ef5, #3b5bdb)';
+                addSensorBtn.innerHTML = '<i class="fas fa-plus"></i> Add Sensor';
+                addSensorBtn.classList.remove('placement-mode');
             }
         }
         
@@ -1348,7 +1413,7 @@
                 fillOpacity: 1
             }).addTo(map);
             
-            // Create coverage circle
+            // Create coverage circle - ALLOW OVERLAPPING
             const circle = L.circle([lat, lng], {
                 color: sensorType.borderColor,
                 fillColor: sensorType.color,
@@ -1382,19 +1447,31 @@
             // Click handlers
             marker.on('click', (e) => {
                 e.originalEvent.stopPropagation();
+                cancelPlacement(); // Cancel placement mode if active
                 selectSensor(sensor);
             });
             
             circle.on('click', (e) => {
                 e.originalEvent.stopPropagation();
+                cancelPlacement(); // Cancel placement mode if active
                 selectSensor(sensor);
             });
             
             // Right-click to delete
             marker.on('contextmenu', (e) => {
                 e.originalEvent.preventDefault();
+                cancelPlacement(); // Cancel placement mode if active
                 deleteSensor(sensor);
             });
+            
+            // Visual feedback for placement
+            marker.setStyle({ weight: 4, color: '#f59e0b' });
+            setTimeout(() => {
+                marker.setStyle({ weight: 3, color: '#1e293b' });
+            }, 1000);
+            
+            // Continue in placement mode (don't cancel)
+            // Placement mode stays active so user can place multiple sensors
             
             return sensor;
         }
@@ -1745,6 +1822,9 @@
                 const group = new L.featureGroup(sensors.map(s => s.marker));
                 map.fitBounds(group.getBounds().pad(0.3));
             }
+            
+            // Cancel any active placement mode
+            cancelPlacement();
         }
         
         function clearAllSensors() {
@@ -1766,6 +1846,9 @@
                         <div style="font-size: 11px; margin-top: 5px;">or click "Add Sensor" to place new one</div>
                     </div>
                 `;
+                
+                // Cancel any active placement mode
+                cancelPlacement();
             }
         }
         
