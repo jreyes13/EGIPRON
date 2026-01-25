@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EGIPRON RFI Sensor Planner v5.1 - Enhanced Layout</title>
+    <title>EGIPRON RFI Sensor Planner v5.2 - Fixed Layout</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
@@ -139,21 +139,17 @@
             color: #4c6ef5;
         }
         
-        /* Search Bar - Now in Top Right */
-        #searchContainer {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 320px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(76, 110, 245, 0.3);
+        /* Search Bar - Now inside Controls Panel */
+        .search-group {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .search-container {
             display: flex;
             gap: 10px;
+            margin-top: 10px;
         }
         
         #searchBox {
@@ -474,7 +470,7 @@
         /* Sensor Counter */
         .sensor-counter {
             position: absolute;
-            top: 90px;
+            top: 20px;
             right: 20px;
             background: rgba(30, 41, 59, 0.95);
             color: white;
@@ -504,13 +500,16 @@
             font-size: 12px;
             border: 1px solid rgba(76, 110, 245, 0.3);
             backdrop-filter: blur(10px);
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: all 0.3s ease;
             width: 200px;
+            opacity: 1;
+            transform: translateX(0);
         }
         
         #legend.hidden {
             transform: translateX(120%);
             opacity: 0;
+            pointer-events: none;
         }
         
         .legend-title {
@@ -576,15 +575,9 @@
                 padding: 15px;
             }
             
-            #searchContainer {
-                top: 80px;
-                right: 20px;
-                width: calc(100% - 40px);
-            }
-            
             .sensor-counter {
-                top: 150px;
-                right: 20px;
+                top: 15px;
+                right: 15px;
                 font-size: 12px;
                 padding: 8px 12px;
             }
@@ -628,7 +621,7 @@
                 width: 100%;
             }
             
-            #searchContainer {
+            .search-container {
                 flex-direction: column;
             }
             
@@ -962,22 +955,6 @@
         .sensor-hidden .sensor-coverage {
             opacity: 0.3 !important;
         }
-        
-        /* Quick Coordinates Search (Optional) */
-        #quickCoords {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 10px;
-            z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(76, 110, 245, 0.3);
-            display: none; /* Hidden by default */
-        }
     </style>
 </head>
 <body>
@@ -986,20 +963,6 @@
     <!-- Mobile Menu Toggle -->
     <div id="mobileToggle">
         <i class="fas fa-bars"></i>
-    </div>
-    
-    <!-- Search Bar - Now in Top Right -->
-    <div id="searchContainer">
-        <input type="text" id="searchBox" placeholder="Search city, address, or coordinates...">
-        <button id="searchButton">
-            <i class="fas fa-search"></i>
-        </button>
-    </div>
-    
-    <!-- Toggle Sensors Visibility Button -->
-    <div class="toggle-sensors-btn" id="toggleSensorsBtn" title="Toggle Sensors Visibility">
-        <i class="fas fa-eye"></i>
-        <span>Hide</span>
     </div>
     
     <!-- Placement Instruction -->
@@ -1016,10 +979,24 @@
         
         <h1>
             <i class="fas fa-satellite-dish"></i>
-            RFI Sensor Planner v5.1
+            RFI Sensor Planner v5.2
         </h1>
         <div class="subtitle">
-            Place, configure, and analyze RFI sensor coverage with enhanced layout
+            Place, configure, and analyze RFI sensor coverage
+        </div>
+        
+        <!-- Search Box - Now inside Controls Panel -->
+        <div class="search-group">
+            <h2><i class="fas fa-search"></i> Search Location</h2>
+            <div class="search-container">
+                <input type="text" id="searchBox" placeholder="City, address, or coordinates...">
+                <button id="searchButton">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 8px; text-align: center;">
+                Examples: "Paris, France" or "51.5074, -0.1278"
+            </div>
         </div>
         
         <!-- Quick Actions -->
@@ -1225,7 +1202,7 @@
                     </div>
                 </div>
                 
-                .form-group">
+                <div class="form-group">
                     <label>Sensor Height: <span id="sensorHeightValueDisplay">10.0</span> m</label>
                     <div class="form-row">
                         <input type="range" id="editSensorHeight" min="1" max="100" value="10" step="0.1">
@@ -1325,6 +1302,7 @@
         let sensorBeingEdited = null;
         let importFileData = null;
         let sensorsHidden = false;
+        let legendHidden = false;
         
         // DOM Elements
         const mobileToggle = document.getElementById('mobileToggle');
@@ -1346,7 +1324,6 @@
         const importFileInput = document.getElementById('importFile');
         const importBtn = document.getElementById('importBtn');
         const importStatus = document.getElementById('importStatus');
-        const toggleSensorsBtn = document.getElementById('toggleSensorsBtn');
         const hideSensorsBtn = document.getElementById('hideSensorsBtn');
         
         // Modal elements
@@ -1392,12 +1369,14 @@
                 }, 300);
             });
             
-            // Close legend button in legend
-            closeLegend.addEventListener('click', () => {
+            // Close legend button in legend - FIXED
+            closeLegend.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent event bubbling
+                legendHidden = true;
                 legend.classList.add('hidden');
             });
             
-            // Map controls toggle - FIXED THIS
+            // Map controls toggle
             document.getElementById('toggleControls').addEventListener('click', toggleControls);
             document.getElementById('toggleLegend').addEventListener('click', toggleLegend);
             
@@ -1418,7 +1397,7 @@
                 });
             });
             
-            // Search
+            // Search - Now inside controls
             searchButton.addEventListener('click', searchLocation);
             searchBox.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') searchLocation();
@@ -1436,7 +1415,6 @@
             importBtn.addEventListener('click', importPlan);
             
             // Toggle sensors visibility
-            toggleSensorsBtn.addEventListener('click', toggleSensorsVisibility);
             hideSensorsBtn.addEventListener('click', toggleSensorsVisibility);
             
             // Modal buttons
@@ -1532,7 +1510,9 @@
             
             if (isMobile) {
                 controls.classList.add('hidden');
+                // On mobile, legend is always visible
                 legend.classList.remove('hidden');
+                legendHidden = false;
             } else {
                 controls.classList.remove('hidden');
             }
@@ -1544,15 +1524,19 @@
         
         // FIXED: Legend toggle function
         function toggleLegend() {
-            legend.classList.toggle('hidden');
+            legendHidden = !legendHidden;
             
-            // Update the button icon based on legend state
+            if (legendHidden) {
+                legend.classList.add('hidden');
+            } else {
+                legend.classList.remove('hidden');
+            }
+            
+            // Update the button title
             const toggleLegendBtn = document.getElementById('toggleLegend');
-            if (legend.classList.contains('hidden')) {
-                toggleLegendBtn.innerHTML = '<i class="fas fa-layer-group"></i>';
+            if (legendHidden) {
                 toggleLegendBtn.title = "Show Legend";
             } else {
-                toggleLegendBtn.innerHTML = '<i class="fas fa-layer-group"></i>';
                 toggleLegendBtn.title = "Hide Legend";
             }
         }
@@ -1671,8 +1655,6 @@
                 });
                 
                 // Update button states
-                toggleSensorsBtn.innerHTML = '<i class="fas fa-eye-slash"></i><span>Show</span>';
-                toggleSensorsBtn.title = "Show Sensors";
                 hideSensorsBtn.innerHTML = '<i class="fas fa-eye"></i> Show All Sensors';
                 hideSensorsBtn.classList.remove('button-info');
                 hideSensorsBtn.classList.add('button-success');
@@ -1687,8 +1669,6 @@
                 });
                 
                 // Update button states
-                toggleSensorsBtn.innerHTML = '<i class="fas fa-eye"></i><span>Hide</span>';
-                toggleSensorsBtn.title = "Hide Sensors";
                 hideSensorsBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide All Sensors';
                 hideSensorsBtn.classList.remove('button-success');
                 hideSensorsBtn.classList.add('button-info');
@@ -1821,7 +1801,7 @@
             
             const exportData = {
                 project: "EGIPRON RFI Sensor Deployment",
-                version: "5.1",
+                version: "5.2",
                 timestamp: new Date().toISOString(),
                 mapType: currentMap,
                 sensorCount: sensors.length,
