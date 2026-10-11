@@ -1,0 +1,69 @@
+{
+  "project": "EGIPRON RFI Sensor Deployment",
+  "version": "5.2",
+  "timestamp": "2026-01-25T13:49:38.534Z",
+  "mapType": "terrain",
+  "sensorCount": 3,
+  "sensors": [
+    {
+      "id": "sensor_1769348939050rdqvr8hv3",
+      "name": "QB100 Professional 1",
+      "type": "qb100",
+      "latitude": 50.097968198113435,
+      "longitude": 14.434640407562258,
+      "parameters": {
+        "transmitterHeight": 10,
+        "transmitterPowerW": 1,
+        "sensorHeight": 10,
+        "frequency": 1580000000
+      },
+      "coverage": 29.23785753874234,
+      "terrainData": {
+        "elevation": 299,
+        "slope": "Moderate",
+        "obstructions": "High",
+        "factor": 1.2949273140150432
+      }
+    },
+    {
+      "id": "sensor_17693489520017fp4zb1sh",
+      "name": "QB100 Professional 2",
+      "type": "qb100",
+      "latitude": 50.105083967618484,
+      "longitude": 14.257850646972658,
+      "parameters": {
+        "transmitterHeight": 10,
+        "transmitterPowerW": 1,
+        "sensorHeight": 10,
+        "frequency": 1580000000
+      },
+      "coverage": 29.49898204310209,
+      "terrainData": {
+        "elevation": 998,
+        "slope": "Steep",
+        "obstructions": "Low",
+        "factor": 1.3064923629453906
+      }
+    },
+    {
+      "id": "sensor_1769348958959g99q6iv9a",
+      "name": "QB100 Professional 3",
+      "type": "qb100",
+      "latitude": 50.00244316883108,
+      "longitude": 14.356384277343752,
+      "parameters": {
+        "transmitterHeight": 10,
+        "transmitterPowerW": 1,
+        "sensorHeight": 10,
+        "frequency": 1580000000
+      },
+      "coverage": 31.600303654508583,
+      "terrainData": {
+        "elevation": 576,
+        "slope": "Moderate",
+        "obstructions": "Low",
+        "factor": 1.3995586468389614
+      }
+    }
+  ]
+}
