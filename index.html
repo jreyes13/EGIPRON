@@ -943,6 +943,7 @@
     <div id="map-tools">
         <button class="tool-btn active" id="btn-map-dark" title="Mapa Táctico Oscuro"><i class="fa-solid fa-moon"></i></button>
         <button class="tool-btn" id="btn-map-satellite" title="Vista Satélite"><i class="fa-solid fa-earth-americas"></i></button>
+        <button class="tool-btn" id="btn-map-streets" title="Mapa Callejero OSM"><i class="fa-solid fa-map"></i></button>
         <button class="tool-btn" id="btn-map-terrain" title="Mapa Topográfico"><i class="fa-solid fa-mountain"></i></button>
         <button class="tool-btn" id="btn-recenter" title="Centrar Europa"><i class="fa-solid fa-compress"></i></button>
     </div>
@@ -1024,11 +1025,29 @@
 
         L.control.attribution({ position: 'bottomleft', prefix: 'EGIPRON &bull; EUSPA &bull; QASCOM' }).addTo(map);
 
-        // Tile Layers
+        // Tile Layers (100% Free & Open, No API Key Required)
         const tileLayers = {
-            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }),
-            satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 }),
-            terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 })
+            dark: L.layerGroup([
+                L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 16,
+                    attribution: '© Esri, HERE, DeLorme'
+                }),
+                L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 16
+                })
+            ]),
+            satellite: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: '© Esri, Maxar, Earthstar'
+            }),
+            streets: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }),
+            terrain: L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 18,
+                attribution: '© Esri, USGS, NOAA'
+            })
         };
         tileLayers.dark.addTo(map);
 
@@ -1263,6 +1282,9 @@
             });
             document.getElementById('btn-map-satellite').addEventListener('click', function() {
                 switchTileLayer('satellite', this);
+            });
+            document.getElementById('btn-map-streets').addEventListener('click', function() {
+                switchTileLayer('streets', this);
             });
             document.getElementById('btn-map-terrain').addEventListener('click', function() {
                 switchTileLayer('terrain', this);
