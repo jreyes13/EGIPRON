@@ -595,34 +595,6 @@
             to { opacity: 1; transform: translate(-50%, 0); }
         }
 
-        /* Scenario Preset Selector */
-        .scenario-select-box {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-
-        /* Aircraft & Vessel Pulse Marker Styles */
-        .anomaly-pulse {
-            position: relative;
-        }
-        .anomaly-pulse::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            border-radius: 50%;
-            border: 2px solid #ef4444;
-            animation: radarPulse 1.5s infinite linear;
-        }
-
-        @keyframes radarPulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2.8); opacity: 0; }
-        }
-
         /* Custom Scrollbars */
         ::-webkit-scrollbar {
             width: 6px;
@@ -696,31 +668,31 @@
         <div class="live-stats">
             <div class="stat-pill" title="Active QASCOM deployed sensors">
                 <span class="indicator-dot dot-cyan"></span>
-                <span>Sensores: <strong id="stat-sensors">0</strong></span>
+                <span>Sensors: <strong id="stat-sensors">0</strong></span>
             </div>
             <div class="stat-pill" title="Aviation ADS-B GNSS anomalies detected in view">
                 <span class="indicator-dot dot-red"></span>
-                <span>ADS-B Anomalías: <strong id="stat-adsb">3</strong></span>
+                <span>ADS-B Anomalies: <strong id="stat-adsb">3</strong></span>
             </div>
             <div class="stat-pill" title="Vessels suffering GNSS spoofing / jamming">
                 <span class="indicator-dot dot-amber"></span>
-                <span>AIS Alertas: <strong id="stat-ais">2</strong></span>
+                <span>AIS Alerts: <strong id="stat-ais">2</strong></span>
             </div>
             <div class="stat-pill" title="IGS / EPN Geodetic Stations tracked">
                 <span class="indicator-dot dot-green"></span>
-                <span>Estaciones IGS: <strong id="stat-igs">12</strong></span>
+                <span>IGS Stations: <strong id="stat-igs">12</strong></span>
             </div>
         </div>
 
         <div class="top-actions">
-            <button class="btn btn-primary" id="btn-add-sensor"><i class="fa-solid fa-location-crosshairs"></i> Añadir Sensor</button>
-            <button class="btn" id="btn-demo-scenario"><i class="fa-solid fa-play"></i> Escenarios Demo</button>
-            <button class="btn" id="btn-export-plan"><i class="fa-solid fa-download"></i> Exportar</button>
+            <button class="btn btn-primary" id="btn-add-sensor"><i class="fa-solid fa-location-crosshairs"></i> Add Sensor</button>
+            <button class="btn" id="btn-demo-scenario"><i class="fa-solid fa-play"></i> Demo Scenarios</button>
+            <button class="btn" id="btn-export-plan"><i class="fa-solid fa-download"></i> Export Plan</button>
             <label class="btn" style="cursor: pointer;">
-                <i class="fa-solid fa-upload"></i> Importar
+                <i class="fa-solid fa-upload"></i> Import Plan
                 <input type="file" id="file-import" accept=".json" style="display:none;">
             </label>
-            <button class="btn btn-danger" id="btn-clear-all" title="Limpiar Mapa"><i class="fa-solid fa-trash"></i></button>
+            <button class="btn btn-danger" id="btn-clear-all" title="Clear All Sensors"><i class="fa-solid fa-trash"></i></button>
         </div>
     </header>
 
@@ -728,14 +700,14 @@
     <div id="map"></div>
 
     <!-- PANEL TOGGLE BUTTON (when panel minimized) -->
-    <button id="panel-toggle-btn" title="Mostrar Panel de Control">
+    <button id="panel-toggle-btn" title="Open Command Panel">
         <i class="fa-solid fa-bars"></i>
     </button>
 
     <!-- ALERT BANNER -->
     <div id="alert-banner" style="display: flex;">
         <i class="fa-solid fa-triangle-exclamation"></i>
-        <span id="alert-text">Alerta Activa: 4 aeronaves reportaron NACp=0 (Jamming GNSS Severo) en Golfo de Finlandia</span>
+        <span id="alert-text">Active Alert: 4 aircraft reported NACp=0 (Severe GNSS Jamming) over the Gulf of Finland</span>
         <button onclick="document.getElementById('alert-banner').style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;margin-left:8px;"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
@@ -744,51 +716,51 @@
         <div class="panel-header">
             <div class="panel-title">
                 <i class="fa-solid fa-sliders text-blue"></i>
-                <span>Centro de Misión EGIPRON v6.0</span>
+                <span>EGIPRON Mission Control v6.0</span>
             </div>
             <button class="btn" id="btn-minimize-panel" style="padding: 4px 8px;"><i class="fa-solid fa-chevron-left"></i></button>
         </div>
 
         <div class="panel-tabs">
-            <button class="tab-btn active" data-tab="tab-sensors"><i class="fa-solid fa-satellite"></i> Sensores <span class="tab-badge" id="badge-sensor-count">0</span></button>
+            <button class="tab-btn active" data-tab="tab-sensors"><i class="fa-solid fa-satellite"></i> Sensors <span class="tab-badge" id="badge-sensor-count">0</span></button>
             <button class="tab-btn" data-tab="tab-adsb"><i class="fa-solid fa-plane"></i> ADS-B <span class="tab-badge alert">3 RFI</span></button>
             <button class="tab-btn" data-tab="tab-ais"><i class="fa-solid fa-ship"></i> AIS <span class="tab-badge alert">2 Alert</span></button>
             <button class="tab-btn" data-tab="tab-igs"><i class="fa-solid fa-monument"></i> IGS / EPN <span class="tab-badge">12</span></button>
-            <button class="tab-btn" data-tab="tab-intel"><i class="fa-solid fa-shield-virus"></i> Fusión & TDoA</button>
+            <button class="tab-btn" data-tab="tab-intel"><i class="fa-solid fa-shield-virus"></i> Fusion & TDoA</button>
         </div>
 
         <div class="panel-content">
-            <!-- TAB 1: SENSORES QASCOM & DESPLIEGUE -->
+            <!-- TAB 1: QASCOM SENSORS & DEPLOYMENT -->
             <div class="tab-pane active" id="tab-sensors">
                 <div class="section-box">
                     <div class="section-title">
-                        <span>Dispositivo QASCOM a Desplegar</span>
-                        <span style="font-size: 10px; color: var(--accent-cyan);">Click en mapa para colocar</span>
+                        <span>Deploy QASCOM Sensor</span>
+                        <span style="font-size: 10px; color: var(--accent-cyan);">Click on map to deploy</span>
                     </div>
                     <div class="sensor-type-grid">
                         <div class="sensor-card-select selected" data-type="qb100">
                             <i class="fa-solid fa-satellite text-blue" style="color: #60a5fa;"></i>
                             <div class="name">QB-100</div>
-                            <div class="spec">Estación Profesional (-125 dBm / TDoA)</div>
+                            <div class="spec">Pro Station (-125 dBm / TDoA)</div>
                         </div>
                         <div class="sensor-card-select" data-type="qb010">
                             <i class="fa-solid fa-wifi text-green" style="color: #34d399;"></i>
                             <div class="name">QB-010</div>
-                            <div class="spec">Sonda Táctica (-95 dBm / RSS)</div>
+                            <div class="spec">Tactical Probe (-95 dBm / RSS)</div>
                         </div>
                         <div class="sensor-card-select" data-type="smartphone">
                             <i class="fa-solid fa-mobile-screen-button text-amber" style="color: #fbbf24;"></i>
                             <div class="name">Crowd Node</div>
-                            <div class="spec">Smartphone / App (-100 dBm)</div>
+                            <div class="spec">Smartphone (-100 dBm)</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="section-box">
-                    <div class="section-title">Parámetros de Radiofrecuencia (RF Budget)</div>
+                    <div class="section-title">Radio Frequency Parameters (RF Budget)</div>
                     
                     <div class="form-row">
-                        <label>Banda GNSS Objetivo: <span class="val" id="lbl-band-name">Galileo E1 / GPS L1</span></label>
+                        <label>Target GNSS Band: <span class="val" id="lbl-band-name">Galileo E1 / GPS L1</span></label>
                         <select id="param-frequency">
                             <option value="1575420000" selected>Galileo E1 / GPS L1 (1575.42 MHz)</option>
                             <option value="1176450000">Galileo E5a / GPS L5 (1176.45 MHz)</option>
@@ -799,57 +771,57 @@
                     </div>
 
                     <div class="form-row">
-                        <label>Potencia Jammer Estimada (Tx): <span class="val" id="lbl-tx-power">1.0 W (30 dBm)</span></label>
+                        <label>Estimated Jammer Power (Tx): <span class="val" id="lbl-tx-power">1.0 W (30 dBm)</span></label>
                         <input type="range" id="param-tx-power" min="0.01" max="50" step="0.1" value="1.0">
                     </div>
 
                     <div class="form-row">
-                        <label>Altura Transmisor Hostil (Tx): <span class="val" id="lbl-tx-height">10 m</span></label>
+                        <label>Hostile Transmitter Height (Tx): <span class="val" id="lbl-tx-height">10 m</span></label>
                         <input type="range" id="param-tx-height" min="1" max="100" step="1" value="10">
                     </div>
 
                     <div class="form-row">
-                        <label>Altura de la Antena Sensor (Rx): <span class="val" id="lbl-rx-height">10 m</span></label>
+                        <label>Sensor Antenna Height (Rx): <span class="val" id="lbl-rx-height">10 m</span></label>
                         <input type="range" id="param-rx-height" min="1" max="120" step="1" value="10">
                     </div>
                 </div>
 
                 <div class="section-box">
                     <div class="section-title">
-                        <span>Sensores Desplegados</span>
-                        <button class="btn" id="btn-quick-random" style="padding: 2px 7px; font-size: 10px;">Distribuir Red</button>
+                        <span>Deployed Sensors</span>
+                        <button class="btn" id="btn-quick-random" style="padding: 2px 7px; font-size: 10px;">Auto-Grid Network</button>
                     </div>
                     <div id="sensor-list-container" style="max-height: 180px; overflow-y: auto; font-size: 11px;">
-                        <p style="color: var(--text-dark); text-align: center; padding: 10px;">No hay sensores desplegados. Pulsa "Añadir Sensor" o selecciona un Escenario Demo.</p>
+                        <p style="color: var(--text-dark); text-align: center; padding: 10px;">No sensors deployed. Click "Add Sensor" or select a Demo Scenario.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 2: AVIACIÓN ADS-B -->
+            <!-- TAB 2: AVIATION ADS-B -->
             <div class="tab-pane" id="tab-adsb">
                 <div class="section-box">
                     <div class="section-title">
                         <span>Aviation GNSS Integrity Feed</span>
-                        <span class="tag tag-jam" id="tag-adsb-status">ACTIVO</span>
+                        <span class="tag tag-jam" id="tag-adsb-status">ACTIVE</span>
                     </div>
                     <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">
-                        Monitorización de parámetros de integridad ADS-B (<strong>NACp</strong> y <strong>NIC</strong>). Aeronaves con caídas abruptas a NACp &le; 3 delatan zonas activas de Jamming/Spoofing en tiempo real.
+                        Continuous monitoring of ADS-B navigation integrity parameters (<strong>NACp</strong> and <strong>NIC</strong>). Aircraft displaying steep drops to NACp &le; 3 pinpoint active ground Jamming / Spoofing zones in real time.
                     </p>
                     <div style="display:flex; gap: 8px; margin-bottom: 10px;">
-                        <button class="btn btn-primary" id="btn-toggle-adsb-layer" style="flex:1;"><i class="fa-solid fa-plane"></i> Capa ADS-B On</button>
-                        <button class="btn" id="btn-toggle-jam-heatmap" style="flex:1;"><i class="fa-solid fa-fire"></i> Heatmap Jamming</button>
+                        <button class="btn btn-primary" id="btn-toggle-adsb-layer" style="flex:1;"><i class="fa-solid fa-plane"></i> Aviation Layer</button>
+                        <button class="btn" id="btn-toggle-jam-heatmap" style="flex:1;"><i class="fa-solid fa-fire"></i> Jamming Heatmap</button>
                     </div>
                 </div>
 
                 <div class="section-box">
-                    <div class="section-title">Aeronaves en Zona Crítica</div>
+                    <div class="section-title">Aircraft in Affected Airspace</div>
                     <div id="adsb-anomaly-list" style="max-height: 220px; overflow-y: auto;">
                         <!-- Dynamically filled -->
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 3: MARÍTIMO AIS -->
+            <!-- TAB 3: MARITIME AIS -->
             <div class="tab-pane" id="tab-ais">
                 <div class="section-box">
                     <div class="section-title">
@@ -857,69 +829,69 @@
                         <span class="tag tag-jam">LIVE STREAM</span>
                     </div>
                     <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">
-                        Detección de <strong>Spoofing marítimo</strong> (saltos de posición, patrones circulares anómalos "crop circles") y <strong>Jamming portuario</strong> analizando el bit de precisión GNSS (Position Accuracy flag) y coherencia cinemática SOG vs COG.
+                        Detection of <strong>maritime GNSS Spoofing</strong> (coordinate jumping, circular drift patterns) and <strong>port Jamming</strong> by analyzing the Position Accuracy flag (PA) and kinematic consistency between SOG and COG.
                     </p>
                     <div style="display:flex; gap: 8px; margin-bottom: 10px;">
-                        <button class="btn btn-primary" id="btn-toggle-ais-layer" style="flex:1;"><i class="fa-solid fa-ship"></i> Capa Buques On</button>
-                        <button class="btn" id="btn-focus-port-rotterdam" style="flex:1;"><i class="fa-solid fa-anchor"></i> Enfoque Puerto</button>
+                        <button class="btn btn-primary" id="btn-toggle-ais-layer" style="flex:1;"><i class="fa-solid fa-ship"></i> Vessel Layer</button>
+                        <button class="btn" id="btn-focus-port-rotterdam" style="flex:1;"><i class="fa-solid fa-anchor"></i> Focus Port Hub</button>
                     </div>
                 </div>
 
                 <div class="section-box">
-                    <div class="section-title">Buques con Alertas de Navegación</div>
+                    <div class="section-title">Vessels with Navigation Alerts</div>
                     <div id="ais-anomaly-list" style="max-height: 220px; overflow-y: auto;">
                         <!-- Dynamically filled -->
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 4: REDES GEODÉSICAS IGS / EUREF EPN -->
+            <!-- TAB 4: GEODETIC NETWORKS (IGS / EUREF EPN) -->
             <div class="tab-pane" id="tab-igs">
                 <div class="section-box">
                     <div class="section-title">
-                        <span>Estaciones de Referencia IGS / EPN</span>
+                        <span>IGS / EUREF EPN Reference Stations</span>
                         <span class="tag tag-igs">CORS NETWORK</span>
                     </div>
                     <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">
-                        Uso de estaciones geodésicas permanentes con antenas Choke Ring como sensores de oportunidad a coste cero. Supervisión de <strong>C/N0</strong> (Carrier-to-Noise Ratio), saltos de ciclo y pérdida de bloqueo.
+                        Utilizing permanent geodetic stations with Choke Ring antennas as zero-cost sensors of opportunity. Continuous surveillance of <strong>C/N0</strong> (Carrier-to-Noise Ratio), cycle slips, and loss-of-lock events.
                     </p>
                     <div style="display:flex; gap: 8px; margin-bottom: 10px;">
-                        <button class="btn btn-primary" id="btn-toggle-igs-layer" style="flex:1;"><i class="fa-solid fa-monument"></i> Capa IGS On</button>
-                        <button class="btn" id="btn-gap-analysis" style="flex:1;"><i class="fa-solid fa-chart-pie"></i> Análisis de Huecos</button>
+                        <button class="btn btn-primary" id="btn-toggle-igs-layer" style="flex:1;"><i class="fa-solid fa-monument"></i> IGS Layer</button>
+                        <button class="btn" id="btn-gap-analysis" style="flex:1;"><i class="fa-solid fa-chart-pie"></i> Gap Analysis</button>
                     </div>
                 </div>
 
                 <div class="section-box">
-                    <div class="section-title">Estaciones Monitorizadas</div>
+                    <div class="section-title">Monitored Stations</div>
                     <div id="igs-station-list" style="max-height: 220px; overflow-y: auto;">
                         <!-- Dynamically filled -->
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 5: FUSIÓN DE INTELIGENCIA & TDoA -->
+            <!-- TAB 5: INTELLIGENCE FUSION & TDoA -->
             <div class="tab-pane" id="tab-intel">
                 <div class="section-box">
-                    <div class="section-title">Geolocalización TDoA (QB-100)</div>
+                    <div class="section-title">TDoA Geolocation Engine (QB-100)</div>
                     <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">
-                        El <strong>QB-100</strong> cuenta con disciplinado de tiempo de alta precisión para TDoA. Con &ge; 3 sensores en cobertura simultánea, el sistema estima la posición del emisor ilegal.
+                        The <strong>QB-100</strong> provides high-precision nanosecond time disciplining for TDoA. With &ge; 3 sensors with overlapping coverage, the system computes the hostile emitter's position.
                     </p>
                     <div class="data-grid">
                         <div class="data-box">
-                            <div class="label">Sensores QB-100</div>
+                            <div class="label">QB-100 Sensors</div>
                             <div class="value" id="val-tdoa-sensors">0</div>
                         </div>
                         <div class="data-box">
-                            <div class="label">Estado TDoA</div>
-                            <div class="value" id="val-tdoa-status" style="color: var(--status-red);">Incompleto (&lt;3)</div>
+                            <div class="label">TDoA Status</div>
+                            <div class="value" id="val-tdoa-status" style="color: var(--status-red);">Incomplete (&lt;3)</div>
                         </div>
                     </div>
-                    <button class="btn btn-primary" id="btn-calc-tdoa-gdop" style="width: 100%;"><i class="fa-solid fa-bullseye"></i> Simular Zona de Triangulación TDoA</button>
+                    <button class="btn btn-primary" id="btn-calc-tdoa-gdop" style="width: 100%;"><i class="fa-solid fa-bullseye"></i> Simulate TDoA GDOP Triangulation Zone</button>
                 </div>
 
                 <div class="section-box">
-                    <div class="section-title">Generador de Informes EUSPA</div>
-                    <button class="btn" id="btn-generate-report" style="width: 100%;"><i class="fa-solid fa-file-pdf"></i> Generar Resumen Ejecutivo EGIPRON</button>
+                    <div class="section-title">EUSPA Reporting Engine</div>
+                    <button class="btn" id="btn-generate-report" style="width: 100%;"><i class="fa-solid fa-file-pdf"></i> Generate EGIPRON Executive Summary</button>
                 </div>
             </div>
         </div>
@@ -930,7 +902,7 @@
         <div class="inspector-header">
             <div class="inspector-title">
                 <i class="fa-solid fa-circle-info" id="inspector-icon"></i>
-                <span id="inspector-name">Detalle del Elemento</span>
+                <span id="inspector-name">Element Details</span>
             </div>
             <button class="close-inspector" id="btn-close-inspector"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -941,52 +913,52 @@
 
     <!-- MAP FLOATING TOOLS -->
     <div id="map-tools">
-        <button class="tool-btn active" id="btn-map-dark" title="Mapa Táctico Oscuro"><i class="fa-solid fa-moon"></i></button>
-        <button class="tool-btn" id="btn-map-satellite" title="Vista Satélite"><i class="fa-solid fa-earth-americas"></i></button>
-        <button class="tool-btn" id="btn-map-streets" title="Mapa Callejero OSM"><i class="fa-solid fa-map"></i></button>
-        <button class="tool-btn" id="btn-map-terrain" title="Mapa Topográfico"><i class="fa-solid fa-mountain"></i></button>
-        <button class="tool-btn" id="btn-recenter" title="Centrar Europa"><i class="fa-solid fa-compress"></i></button>
+        <button class="tool-btn active" id="btn-map-dark" title="Dark Tactical Map (No API Key)"><i class="fa-solid fa-moon"></i></button>
+        <button class="tool-btn" id="btn-map-satellite" title="Satellite Imagery"><i class="fa-solid fa-earth-americas"></i></button>
+        <button class="tool-btn" id="btn-map-streets" title="Street Map (OSM)"><i class="fa-solid fa-map"></i></button>
+        <button class="tool-btn" id="btn-map-terrain" title="Topographic Map"><i class="fa-solid fa-mountain"></i></button>
+        <button class="tool-btn" id="btn-recenter" title="Center Europe View"><i class="fa-solid fa-compress"></i></button>
     </div>
 
     <!-- DEMO SCENARIOS MODAL -->
     <div class="modal-overlay" id="modal-scenarios">
         <div class="modal-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
-                <h3 style="color:#60a5fa;"><i class="fa-solid fa-layer-group"></i> Escenarios Operacionales Preconfigurados</h3>
+                <h3 style="color:#60a5fa;"><i class="fa-solid fa-layer-group"></i> Preconfigured Operational Scenarios</h3>
                 <button class="close-inspector" onclick="document.getElementById('modal-scenarios').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
-                Carga escenarios reales y combinados que integran sensores QASCOM, tráfico aéreo ADS-B, buques AIS y estaciones IGS:
+                Load real-world multi-domain scenarios integrating QASCOM sensors, ADS-B air traffic, AIS maritime vessels, and IGS geodetic stations:
             </p>
 
             <div style="display:flex; flex-direction:column; gap: 12px;">
                 <div class="section-box" style="cursor:pointer;" onclick="loadScenario('baltic')">
                     <div style="display:flex; justify-content:space-between;">
                         <strong style="color:#f87171;"><i class="fa-solid fa-plane-circle-exclamation"></i> 1. Baltic Sea GNSS Jamming Outbreak</strong>
-                        <span class="tag tag-jam">ALERTA ALTA</span>
+                        <span class="tag tag-jam">HIGH ALERT</span>
                     </div>
                     <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-                        Intensa interferencia GNSS afectando corredores de aviación en el Golfo de Finlandia. Despliegue de red QB-100 para triangulación TDoA y cruce con estaciones IGS de Helsinki y Tallin.
+                        Intense GNSS interference affecting aviation corridors across the Gulf of Finland. QB-100 network deployed for TDoA triangulation cross-referenced with Helsinki and Tallinn IGS stations.
                     </p>
                 </div>
 
                 <div class="section-box" style="cursor:pointer;" onclick="loadScenario('rotterdam')">
                     <div style="display:flex; justify-content:space-between;">
-                        <strong style="color:#38bdf8;"><i class="fa-solid fa-ship"></i> 2. Puerto de Rotterdam & Mar del Norte (AIS Spoofing)</strong>
-                        <span class="tag tag-qb100">MARÍTIMO</span>
+                        <strong style="color:#38bdf8;"><i class="fa-solid fa-ship"></i> 2. Port of Rotterdam & North Sea (AIS Spoofing)</strong>
+                        <span class="tag tag-qb100">MARITIME</span>
                     </div>
                     <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-                        Protección de aproximación portuaria contra jammers ilegales en buques de carga y camiones portuarios. Sensores fijos QB-100 en faros y patrulla con QB-010.
+                        Port approach defense against illicit jammers aboard cargo vessels and container terminal trucks. Fixed QB-100 sensors on lighthouses and mobile QB-010 patrols.
                     </p>
                 </div>
 
                 <div class="section-box" style="cursor:pointer;" onclick="loadScenario('prague')">
                     <div style="display:flex; justify-content:space-between;">
-                        <strong style="color:#a78bfa;"><i class="fa-solid fa-building-shield"></i> 3. Praga / EUSPA HQ - Despliegue de Referencia</strong>
+                        <strong style="color:#a78bfa;"><i class="fa-solid fa-building-shield"></i> 3. Prague / EUSPA Headquarters - Baseline Plan</strong>
                         <span class="tag tag-igs">EUSPA BASE</span>
                     </div>
                     <p style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-                        Planificación original de sensores QASCOM alrededor de la sede de EUSPA en Praga, cruzado con la estación geodésica IGS GOPE (Ondrejov).
+                        Reference deployment of QASCOM sensors surrounding EUSPA headquarters in Prague, integrated with the IGS GOPE (Ondrejov) geodetic station.
                     </p>
                 </div>
             </div>
@@ -997,15 +969,15 @@
     <div class="modal-overlay" id="modal-report">
         <div class="modal-card" style="width: 700px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
-                <h3 style="color:#38bdf8;"><i class="fa-solid fa-file-shield"></i> Informe Ejecutivo de Situación RFI (EGIPRON)</h3>
+                <h3 style="color:#38bdf8;"><i class="fa-solid fa-file-shield"></i> Operational GNSS Integrity & RFI Report (EGIPRON)</h3>
                 <button class="close-inspector" onclick="document.getElementById('modal-report').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="report-content" style="font-size: 12px; line-height: 1.6; color: var(--text-main);">
                 <!-- Dynamic report -->
             </div>
             <div style="margin-top: 16px; display:flex; justify-content:flex-end; gap: 8px;">
-                <button class="btn btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir / Guardar PDF</button>
-                <button class="btn" onclick="document.getElementById('modal-report').style.display='none'">Cerrar</button>
+                <button class="btn btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> Print / Save PDF</button>
+                <button class="btn" onclick="document.getElementById('modal-report').style.display='none'">Close</button>
             </div>
         </div>
     </div>
@@ -1174,7 +1146,7 @@
                 horizonKm: horizonKm.toFixed(1),
                 pathLossKm: pathLossKm.toFixed(1),
                 effectiveKm: effectiveCoverageKm.toFixed(1),
-                limitingFactor: horizonKm < pathLossKm ? "Horizonte Radio" : "Atenuación FSPL",
+                limitingFactor: horizonKm < pathLossKm ? "Radio Horizon" : "FSPL Path Loss",
                 txPowerDbm: txPowerDbm.toFixed(1)
             };
         }
@@ -1242,12 +1214,12 @@
                 if (isPlacingSensor) {
                     addBtn.classList.remove('btn-primary');
                     addBtn.classList.add('btn-danger');
-                    addBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Colocación';
+                    addBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancel Placement';
                     document.getElementById('map').style.cursor = 'crosshair';
                 } else {
                     addBtn.classList.add('btn-primary');
                     addBtn.classList.remove('btn-danger');
-                    addBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i> Añadir Sensor';
+                    addBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i> Add Sensor';
                     document.getElementById('map').style.cursor = '';
                 }
             });
@@ -1307,7 +1279,7 @@
 
             // Clear All
             document.getElementById('btn-clear-all').addEventListener('click', () => {
-                if (confirm('¿Deseas eliminar todos los sensores desplegados del plan actual?')) {
+                if (confirm('Are you sure you want to clear all deployed sensors from the current plan?')) {
                     deployedSensors.forEach(s => {
                         map.removeLayer(s.marker);
                         map.removeLayer(s.circle);
@@ -1320,7 +1292,7 @@
             });
 
             // TDoA GDOP Calc Button
-            document.getElementById('btn-calc-tdoa-gdop').addEventListener('click', computeTDoAGDOPZone);
+            document.getElementById('btn-calc-tdoa-gdOP', 'btn-calc-tdoa-gdop') || document.getElementById('btn-calc-tdoa-gdop').addEventListener('click', computeTDoAGDOPZone);
 
             // Quick Random Network
             document.getElementById('btn-quick-random').addEventListener('click', deployRandomHexNetwork);
@@ -1435,15 +1407,15 @@
             document.getElementById('val-tdoa-sensors').innerText = qb100Count;
             const tdoaStatus = document.getElementById('val-tdoa-status');
             if (qb100Count >= 3) {
-                tdoaStatus.innerText = "Listo (≥ 3 QB-100)";
+                tdoaStatus.innerText = "Operational (≥ 3 QB-100)";
                 tdoaStatus.style.color = "var(--status-green)";
             } else {
-                tdoaStatus.innerText = `Incompleto (${qb100Count}/3)`;
+                tdoaStatus.innerText = `Incomplete (${qb100Count}/3)`;
                 tdoaStatus.style.color = "var(--status-red)";
             }
 
             if (deployedSensors.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-dark); text-align: center; padding: 10px;">No hay sensores desplegados. Pulsa "Añadir Sensor" o selecciona un Escenario Demo.</p>';
+                container.innerHTML = '<p style="color: var(--text-dark); text-align: center; padding: 10px;">No sensors deployed. Click "Add Sensor" or select a Demo Scenario.</p>';
                 return;
             }
 
@@ -1454,12 +1426,12 @@
                         <div>
                             <strong style="color:${s.model.color};"><i class="fa-solid ${s.model.icon}"></i> ${s.name}</strong>
                             <div style="color:var(--text-muted); font-size:9px; margin-top:2px;">
-                                Cobertura: ${s.calc.effectiveKm} km (${s.calc.limitingFactor})
+                                Coverage: ${s.calc.effectiveKm} km (${s.calc.limitingFactor})
                             </div>
                         </div>
                         <div style="display:flex; gap:5px;">
-                            <button class="btn" style="padding:2px 6px; font-size:10px;" onclick="focusOnSensor(${idx})" title="Centrar"><i class="fa-solid fa-eye"></i></button>
-                            <button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="deleteSensorByIndex(${idx})" title="Borrar"><i class="fa-solid fa-trash"></i></button>
+                            <button class="btn" style="padding:2px 6px; font-size:10px;" onclick="focusOnSensor(${idx})" title="Focus Sensor"><i class="fa-solid fa-eye"></i></button>
+                            <button class="btn btn-danger" style="padding:2px 6px; font-size:10px;" onclick="deleteSensorByIndex(${idx})" title="Delete"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
                 `;
@@ -1499,49 +1471,49 @@
             document.getElementById('inspector-body').innerHTML = `
                 <div class="data-grid">
                     <div class="data-box">
-                        <div class="label">Modelo</div>
+                        <div class="label">Hardware Model</div>
                         <div class="value" style="font-size:11px;">${s.model.name}</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Sensibilidad Rx</div>
+                        <div class="label">Rx Sensitivity</div>
                         <div class="value">${s.model.sensitivity} dBm</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Radio Cobertura</div>
+                        <div class="label">Coverage Radius</div>
                         <div class="value" style="color:#38bdf8;">${s.calc.effectiveKm} km</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Factor Limitante</div>
+                        <div class="label">Limiting Factor</div>
                         <div class="value" style="font-size:11px;">${s.calc.limitingFactor}</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Horizonte Radio</div>
+                        <div class="label">Radio Horizon</div>
                         <div class="value">${s.calc.horizonKm} km</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Pérdida FSPL Máx</div>
+                        <div class="label">Max FSPL Range</div>
                         <div class="value">${s.calc.pathLossKm} km</div>
                     </div>
                 </div>
 
                 <div style="font-size:11px; margin-bottom:12px;">
-                    <div style="color:var(--text-muted); margin-bottom:4px;">Capacidades de Misión:</div>
+                    <div style="color:var(--text-muted); margin-bottom:4px;">Mission Capabilities:</div>
                     <div>${featuresHtml}</div>
                 </div>
 
                 <div style="font-size:10px; color:var(--text-muted); margin-bottom:12px;">
-                    Coordenadas: Lat ${s.lat.toFixed(5)}, Lon ${s.lng.toFixed(5)}
+                    Coordinates: Lat ${s.lat.toFixed(5)}, Lon ${s.lng.toFixed(5)}
                 </div>
 
                 <button class="btn btn-primary" style="width:100%;" onclick="runSensorSelfDiagnostics('${s.id}')">
-                    <i class="fa-solid fa-stethoscope"></i> Test de Espectro RF & Ruido
+                    <i class="fa-solid fa-stethoscope"></i> Run RF Spectrum & Noise Diagnostics
                 </button>
             `;
             panel.style.display = 'block';
         }
 
         window.runSensorSelfDiagnostics = function(id) {
-            alert(`[QASCOM BIST Diagnóstico]: Sensor ${id} en línea. Reloj disciplinado GNSS sincronizado (< 3 ns offset). Espectro libre en banda base Galileo E1.`);
+            alert(`[QASCOM BIST Diagnostics]: Sensor ${id} online. GNSS disciplined clock synchronized (< 3 ns offset). Clean baseband spectrum on Galileo E1.`);
         };
 
         // --- TDoA MULTI-SENSOR GDOP SIMULATION ---
@@ -1550,12 +1522,11 @@
             const qb100s = deployedSensors.filter(s => s.type === 'qb100');
 
             if (qb100s.length < 3) {
-                alert("Se requieren al menos 3 estaciones QB-100 para calcular la zona de triangulación TDoA y GDOP.");
+                alert("At least 3 QB-100 stations are required to compute the TDoA Triangulation and GDOP coverage polygon.");
                 return;
             }
 
             const points = qb100s.map(s => [s.lat, s.lng]);
-            // Approximate convex triangulation polygon
             const polygon = L.polygon(points, {
                 color: '#8b5cf6',
                 weight: 2,
@@ -1564,7 +1535,6 @@
                 fillOpacity: 0.35
             }).addTo(layers.tdoaHull);
 
-            // Centroid calculation
             let cLat = 0, cLng = 0;
             qb100s.forEach(s => { cLat += s.lat; cLng += s.lng; });
             cLat /= qb100s.length;
@@ -1579,9 +1549,9 @@
 
             tdoaMarker.bindPopup(`
                 <div style="color:#0f172a; font-size:12px; font-weight:600;">
-                    <i class="fa-solid fa-bullseye" style="color:#8b5cf6;"></i> Zona Óptima TDoA GDOP &le; 1.8<br>
+                    <i class="fa-solid fa-bullseye" style="color:#8b5cf6;"></i> Optimal TDoA Zone GDOP &le; 1.8<br>
                     <span style="font-size:10px; font-weight:normal; color:#475569;">
-                        Error de localización estimado para Jammer L1: &plusmn; 35 metros con sincronismo sub-nanosegundo QB-100.
+                        Estimated localization accuracy for L1 Jammer: &plusmn; 35 meters with QB-100 sub-nanosecond synchronization.
                     </span>
                 </div>
             `).openPopup();
@@ -1627,7 +1597,7 @@
                                 Alt: ${ac.alt} ft &bull; ${ac.note}
                             </div>
                             <button class="btn btn-primary" style="padding:2px 7px; font-size:9px; margin-top:6px; width:100%;" onclick="event.stopPropagation(); deployQB010UnderAircraft(${ac.lat}, ${ac.lon})">
-                                <i class="fa-solid fa-crosshairs"></i> Desplegar QB-010 para Rastrear Emisor
+                                <i class="fa-solid fa-crosshairs"></i> Deploy QB-010 to Intercept Emitter
                             </button>
                         </div>
                     `;
@@ -1647,50 +1617,50 @@
 
         window.deployQB010UnderAircraft = function(lat, lon) {
             addSensorAt(lat + (Math.random() - 0.5) * 0.2, lon + (Math.random() - 0.5) * 0.2, 'qb010');
-            alert("Sonda táctica QASCOM QB-010 desplegada en tierra bajo la trayectoria afectada por Jamming.");
+            alert("Tactical QASCOM QB-010 probe deployed on the ground beneath the affected flight track.");
         };
 
         function inspectAircraft(ac) {
             selectedObject = ac;
             const panel = document.getElementById('inspector-panel');
             document.getElementById('inspector-icon').className = "fa-solid fa-plane";
-            document.getElementById('inspector-name').innerText = `Vuelo ${ac.callsign} (${ac.model})`;
+            document.getElementById('inspector-name').innerText = `Flight ${ac.callsign} (${ac.model})`;
 
             document.getElementById('inspector-body').innerHTML = `
                 <div class="data-grid">
                     <div class="data-box">
-                        <div class="label">Estado GNSS</div>
+                        <div class="label">GNSS Health</div>
                         <div class="value" style="color:${ac.jamStatus === 'jammed' ? '#ef4444' : '#34d399'}; text-transform:uppercase;">${ac.jamStatus}</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Altitud Vuelo</div>
+                        <div class="label">Flight Altitude</div>
                         <div class="value">${ac.alt} ft</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">NACp (Precisión)</div>
+                        <div class="label">NACp (Accuracy)</div>
                         <div class="value" style="color:#f87171;">${ac.nacp} / 11</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">NIC (Integridad)</div>
+                        <div class="label">NIC (Integrity)</div>
                         <div class="value" style="color:#f87171;">${ac.nic} / 11</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">SIL (Seguridad)</div>
+                        <div class="label">SIL (Surveillance)</div>
                         <div class="value">${ac.sil}</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Posición</div>
+                        <div class="label">Coordinates</div>
                         <div class="value" style="font-size:10px;">${ac.lat.toFixed(3)}, ${ac.lon.toFixed(3)}</div>
                     </div>
                 </div>
 
                 <div style="font-size:11px; background:rgba(239,68,68,0.15); border:1px solid #ef444444; border-radius:6px; padding:8px; margin-bottom:12px; color:#fca5a5;">
-                    <strong><i class="fa-solid fa-triangle-exclamation"></i> Diagnóstico de Interferencia:</strong><br>
+                    <strong><i class="fa-solid fa-triangle-exclamation"></i> Interference Assessment:</strong><br>
                     ${ac.note}
                 </div>
 
                 <button class="btn btn-primary" style="width:100%;" onclick="deployQB010UnderAircraft(${ac.lat}, ${ac.lon})">
-                    <i class="fa-solid fa-location-arrow"></i> Desplegar QB-010 Táctico en esta Zona
+                    <i class="fa-solid fa-location-arrow"></i> Deploy Tactical QB-010 to this Area
                 </button>
             `;
             panel.style.display = 'block';
@@ -1760,38 +1730,38 @@
             document.getElementById('inspector-body').innerHTML = `
                 <div class="data-grid">
                     <div class="data-box">
-                        <div class="label">MMSI / Tipo</div>
+                        <div class="label">MMSI / Type</div>
                         <div class="value" style="font-size:11px;">${v.mmsi}</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Estado AIS GNSS</div>
+                        <div class="label">AIS GNSS Health</div>
                         <div class="value" style="color:${v.status === 'nominal' ? '#34d399' : '#ef4444'}; text-transform:uppercase;">${v.status}</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Velocidad (SOG)</div>
-                        <div class="value">${v.speed} nudos</div>
+                        <div class="label">Speed (SOG)</div>
+                        <div class="value">${v.speed} knots</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Rumbo Fondo (COG)</div>
+                        <div class="label">Course (COG)</div>
                         <div class="value">${v.cog}°</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Aguja Giro (HDG)</div>
+                        <div class="label">Heading (HDG)</div>
                         <div class="value">${v.hdg}°</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Bit Precisión (PA)</div>
+                        <div class="label">Accuracy Bit (PA)</div>
                         <div class="value">${v.posAccuracy === 1 ? 'High (<=10m)' : 'Low (>10m)'}</div>
                     </div>
                 </div>
 
                 <div style="font-size:11px; background:rgba(245,158,11,0.15); border:1px solid #f59e0b44; border-radius:6px; padding:8px; margin-bottom:12px; color:#fde68a;">
-                    <strong><i class="fa-solid fa-circle-exclamation"></i> Evaluación Forense:</strong><br>
+                    <strong><i class="fa-solid fa-circle-exclamation"></i> Forensic Evaluation:</strong><br>
                     ${v.note}
                 </div>
 
                 <button class="btn btn-primary" style="width:100%;" onclick="deployQB100ForPort(${v.lat}, ${v.lon})">
-                    <i class="fa-solid fa-tower-broadcast"></i> Proteger Canal Marítimo con QB-100
+                    <i class="fa-solid fa-tower-broadcast"></i> Shield Maritime Channel with QB-100
                 </button>
             `;
             panel.style.display = 'block';
@@ -1799,7 +1769,7 @@
 
         window.deployQB100ForPort = function(lat, lon) {
             addSensorAt(lat + 0.05, lon + 0.05, 'qb100');
-            alert("Estación fija QASCOM QB-100 asignada a torre VTS portuaria para blindar la aproximación marítima.");
+            alert("Fixed QASCOM QB-100 station assigned to port VTS tower to protect channel approach.");
         };
 
         // --- IGS & EUREF EPN STATIONS RENDERER ---
@@ -1857,16 +1827,16 @@
             selectedObject = st;
             const panel = document.getElementById('inspector-panel');
             document.getElementById('inspector-icon').className = "fa-solid fa-monument";
-            document.getElementById('inspector-name').innerText = `Estación Geodésica ${st.id} (${st.country})`;
+            document.getElementById('inspector-name').innerText = `Geodetic Station ${st.id} (${st.country})`;
 
             document.getElementById('inspector-body').innerHTML = `
                 <div class="data-grid">
                     <div class="data-box">
-                        <div class="label">Receptor Geodésico</div>
+                        <div class="label">Geodetic Receiver</div>
                         <div class="value" style="font-size:11px;">${st.receiver}</div>
                     </div>
                     <div class="data-box">
-                        <div class="label">Salud SNR</div>
+                        <div class="label">SNR Health</div>
                         <div class="value" style="color:${st.status === 'nominal' ? '#34d399' : '#ef4444'}; text-transform:uppercase;">${st.status}</div>
                     </div>
                     <div class="data-box">
@@ -1881,18 +1851,18 @@
 
                 ${st.warning ? `
                     <div style="font-size:11px; background:rgba(239,68,68,0.15); border:1px solid #ef444444; border-radius:6px; padding:8px; margin-bottom:12px; color:#fca5a5;">
-                        <strong><i class="fa-solid fa-triangle-exclamation"></i> Anomalía Espectral:</strong><br>
+                        <strong><i class="fa-solid fa-triangle-exclamation"></i> Spectral Anomaly:</strong><br>
                         ${st.warning}
                     </div>
                 ` : `
                     <div style="font-size:11px; background:rgba(16,185,129,0.15); border:1px solid #10b98144; border-radius:6px; padding:8px; margin-bottom:12px; color:#6ee7b7;">
-                        <strong><i class="fa-solid fa-check"></i> Red Geodésica Nominal:</strong><br>
-                        Seguimiento continuo multi-constelación sin distorsión de portadora.
+                        <strong><i class="fa-solid fa-check"></i> Nominal Geodetic Network:</strong><br>
+                        Continuous multi-constellation tracking without carrier power distortion.
                     </div>
                 `}
 
                 <button class="btn btn-primary" style="width:100%;" onclick="recommendQASCOMCrossValidation(${st.lat}, ${st.lon})">
-                    <i class="fa-solid fa-share-nodes"></i> Asociar QB-100 para Blindaje Cruzado
+                    <i class="fa-solid fa-share-nodes"></i> Co-locate QB-100 for Cross-Validation
                 </button>
             `;
             panel.style.display = 'block';
@@ -1900,12 +1870,12 @@
 
         window.recommendQASCOMCrossValidation = function(lat, lon) {
             addSensorAt(lat + 0.08, lon + 0.08, 'qb100');
-            alert("QB-100 desplegado junto a la estación IGS para validación cruzada y triangulación TDoA con receptor geodésico.");
+            alert("QB-100 co-located near geodetic station for cross-validation and TDoA synchronization with reference receiver.");
         };
 
         // --- GAP ANALYSIS (Identify Blind Spots between IGS Stations) ---
         function runIGSGapAnalysis() {
-            alert("Ejecutando Gap Analysis: Evaluando cobertura entre estaciones IGS. Zonas a más de 120 km de una estación geodésica o con degradación activa han sido marcadas para recomendación de despliegue QB-100.");
+            alert("Running Gap Analysis: Evaluating spatial baseline across geodetic stations. Areas beyond 120 km from an active geodetic station or with degraded C/N0 have been prioritized for QB-100 deployment.");
             // Deploy an optimal QB-100 in the Baltic gap
             addSensorAt(58.9, 23.5, 'qb100');
             map.flyTo([58.9, 23.5], 7);
@@ -1943,7 +1913,7 @@
             if (scenarioKey === 'baltic') {
                 map.flyTo([59.5, 25.0], 7);
                 document.getElementById('alert-banner').style.display = 'flex';
-                document.getElementById('alert-text').innerText = "Alerta Activa: 4 aeronaves reportaron NACp=0 en Golfo de Finlandia";
+                document.getElementById('alert-text').innerText = "Active Alert: 4 aircraft reported NACp=0 over the Gulf of Finland";
 
                 // Deploy 3 synchronized QB-100s for TDoA triangulation in Estonia/Finland
                 addSensorAt(59.43, 24.75, 'qb100'); // Tallinn
@@ -1956,7 +1926,7 @@
             else if (scenarioKey === 'rotterdam') {
                 map.flyTo([51.95, 4.15], 10);
                 document.getElementById('alert-banner').style.display = 'flex';
-                document.getElementById('alert-text').innerText = "Alerta Marítima: Buque NORDIC TRADER reporta Spoofing GNSS con desvío COG";
+                document.getElementById('alert-text').innerText = "Maritime Alert: Vessel NORDIC TRADER reports GNSS Spoofing with heading mismatch";
 
                 addSensorAt(51.99, 4.09, 'qb100'); // Port Entrance
                 addSensorAt(51.91, 4.28, 'qb100'); // Container Hub
@@ -1999,28 +1969,28 @@
 
             let html = `
                 <div style="border-bottom:1px solid #334155; padding-bottom:12px; margin-bottom:14px;">
-                    <div style="font-size:18px; font-weight:800; color:#38bdf8;">INFORME OPERACIONAL DE INTEGRIDAD GNSS Y DESPLIEGUE RFI</div>
-                    <div style="color:#94a3b8; font-size:11px;">Programa EGIPRON &bull; Financiado por EUSPA &bull; Tecnología QASCOM</div>
-                    <div style="color:#64748b; font-size:10px; margin-top:4px;">Fecha de emisión: ${new Date().toISOString()}</div>
+                    <div style="font-size:18px; font-weight:800; color:#38bdf8;">OPERATIONAL GNSS INTEGRITY & RFI DEPLOYMENT REPORT</div>
+                    <div style="color:#94a3b8; font-size:11px;">EGIPRON Programme &bull; Supported by EUSPA &bull; QASCOM Technology</div>
+                    <div style="color:#64748b; font-size:10px; margin-top:4px;">Issued At: ${new Date().toISOString()}</div>
                 </div>
 
-                <h4 style="color:#60a5fa; margin-bottom:6px;">1. Resumen de Sensores QASCOM Desplegados</h4>
-                <p>Total de estaciones activas: <strong>${deployedSensors.length}</strong> (QB-100: ${qb100Count}, QB-010: ${qb010Count}).</p>
-                <p>Capacidad de localización TDoA: <strong>${qb100Count >= 3 ? 'OPERATIVA (GDOP óptimo)' : 'NO DISPONIBLE (Se requieren al menos 3 QB-100)'}</strong>.</p>
+                <h4 style="color:#60a5fa; margin-bottom:6px;">1. Deployed QASCOM Sensor Network Summary</h4>
+                <p>Active monitored stations: <strong>${deployedSensors.length}</strong> (QB-100: ${qb100Count}, QB-010: ${qb010Count}).</p>
+                <p>TDoA Geolocation Capability: <strong>${qb100Count >= 3 ? 'OPERATIONAL (Optimal GDOP)' : 'INCOMPLETE (At least 3 QB-100 stations required)'}</strong>.</p>
 
-                <h4 style="color:#f87171; margin-top:14px; margin-bottom:6px;">2. Amenazas de Aviación Detectadas (ADS-B NACp / NIC Drops)</h4>
+                <h4 style="color:#f87171; margin-top:14px; margin-bottom:6px;">2. Detected Aviation Threats (ADS-B NACp / NIC Drops)</h4>
                 <ul>
-                    ${adsbAlerts.map(a => `<li>Vuelo <strong>${a.callsign}</strong> (${a.model}): ${a.note} - Altitud: ${a.alt} ft.</li>`).join('')}
+                    ${adsbAlerts.map(a => `<li>Flight <strong>${a.callsign}</strong> (${a.model}): ${a.note} - Altitude: ${a.alt} ft.</li>`).join('')}
                 </ul>
 
-                <h4 style="color:#fbbf24; margin-top:14px; margin-bottom:6px;">3. Amenazas Marítimas Detectadas (AIS Spoofing & Jamming)</h4>
+                <h4 style="color:#fbbf24; margin-top:14px; margin-bottom:6px;">3. Detected Maritime Threats (AIS Spoofing & Jamming)</h4>
                 <ul>
-                    ${aisAlerts.map(v => `<li>Buque <strong>${v.name}</strong> (MMSI: ${v.mmsi}): ${v.note}</li>`).join('')}
+                    ${aisAlerts.map(v => `<li>Vessel <strong>${v.name}</strong> (MMSI: ${v.mmsi}): ${v.note}</li>`).join('')}
                 </ul>
 
-                <h4 style="color:#a78bfa; margin-top:14px; margin-bottom:6px;">4. Conclusiones y Recomendaciones EUSPA / EGIPRON</h4>
+                <h4 style="color:#a78bfa; margin-top:14px; margin-bottom:6px;">4. EUSPA / EGIPRON Conclusions & Recommendations</h4>
                 <p>
-                    Se recomienda consolidar la red de sensores QB-100 en los corredores aéreos y marítimos con mayor densidad de incidentes para permitir la triangulación continua de interferencias hostiles y proteger la señal de los servicios de alta precisión Galileo (HAS) y salvaguarda de la vida humana.
+                    It is recommended to consolidate the QB-100 sensor cluster along high-density air and maritime corridors to maintain continuous multilateral triangulation of hostile emitters, protecting Galileo High Accuracy Service (HAS) and Safety of Life applications.
                 </p>
             `;
 
@@ -2068,7 +2038,7 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if (!data.sensors || !Array.isArray(data.sensors)) {
-                        alert("El archivo no tiene el formato válido de EGIPRON.");
+                        alert("The file does not contain a valid EGIPRON deployment plan.");
                         return;
                     }
 
@@ -2094,9 +2064,9 @@
                         computeTDoAGDOPZone();
                     }
 
-                    alert(`Plan "${data.project || 'EGIPRON'}" importado con éxito: ${deployedSensors.length} sensores cargados.`);
+                    alert(`Plan "${data.project || 'EGIPRON'}" successfully loaded: ${deployedSensors.length} sensors restored.`);
                 } catch (err) {
-                    alert("Error al importar el archivo JSON: " + err.message);
+                    alert("Error parsing JSON plan: " + err.message);
                 }
             };
             reader.readAsText(file);
